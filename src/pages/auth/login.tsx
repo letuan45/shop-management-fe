@@ -13,40 +13,128 @@ import { loginSchema } from "@/lib/utils/schemas/loginShema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { GitHubLogoIcon, SunIcon } from "@radix-ui/react-icons";
-import { Link } from "react-router-dom";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "@/components/shared/Logo";
 import { PasswordInput } from "@/components/shared/PasswordInput";
 import { Checkbox } from "@/components/ui/checkbox";
-import CityImage from "../../../public/assets/images/city.jpg";
+import CityImage from "../../assets/images/city.jpg";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
+import ToggleThemeButton from "@/components/shared/ToggleThemeButton";
+import { useToast } from "@/components/ui/use-toast";
+import { IJWTTokenPayload, ILogin } from "@/interfaces/auth";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/services/authService";
+import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { useCookies } from "react-cookie";
+import Gitbutton from "@/components/shared/Gitbutton";
+
+const CarouselItems = [
+  {
+    id: 1,
+    content: (
+      <div className="text-sm">
+        <h5>Account demo dành cho bạn với role quản lý</h5>
+        <ul className="my-2 ml-4 list-disc">
+          <li>username: tuan</li>
+          <li>password: addmin</li>
+        </ul>
+        <p className="italic text-gray-300">
+          Chúc bạn có trải nghiệm tuyệt vời!
+        </p>
+      </div>
+    ),
+  },
+  {
+    id: 2,
+    content: (
+      <div className="text-sm">
+        <h5>Account demo dành cho bạn với role nhân viên</h5>
+        <ul className="my-2 ml-4 list-disc">
+          <li>username: tuan</li>
+          <li>password: addmin</li>
+        </ul>
+        <p className="italic text-gray-300">
+          Chúc bạn có trải nghiệm tuyệt vời!
+        </p>
+      </div>
+    ),
+  },
+];
 
 const Login = () => {
+  const [, setCookie] = useCookies(["accessToken", "refreshToken", "myCookie"]);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { mutate, data, isPending, isError } = useMutation({
+    mutationKey: ["login"],
+    mutationFn: login,
+  });
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: "tuan",
+      password: "admin123",
     },
   });
 
   function onSubmit(values: z.infer<typeof loginSchema>) {
-    console.log(values);
+    const credentials: ILogin = {
+      username: values.username,
+      password: values.password,
+    };
+    mutate(credentials);
   }
 
+  useEffect(() => {
+    if (isError) {
+      toast({
+        title: "Thông báo: xác thực",
+        description: "Tài khoản hoặc mật khẩu không chính xác!",
+        variant: "destructive",
+      });
+    }
+    if (data) {
+      toast({
+        title: "Thông báo: xác thực",
+        description: "Đăng nhập thành công!",
+        variant: "success",
+      });
+
+      const { accessToken, refreshToken } = data;
+      const decodedAT = jwtDecode<IJWTTokenPayload>(accessToken);
+      const decodedRT = jwtDecode<IJWTTokenPayload>(refreshToken);
+
+      const expireAT = decodedAT.exp * 1000;
+      const expireRT = decodedRT.exp * 1000;
+
+      setCookie("accessToken", accessToken, { expires: new Date(expireAT) });
+      setCookie("refreshToken", refreshToken, { expires: new Date(expireRT) });
+
+      navigate("/home");
+    }
+  }, [isError, toast, data, setCookie, navigate]);
+
   return (
-    <div className="flex justify-center items-center h-screen w-screen bg-violet-900 p-10">
-      <div className="grid grid-cols-2 p-6 shadow-lg rounded-xl bg-white gap-8">
-        <div className="col-span-2 md:col-span-1 flex flex-col justify-between">
-          <div className="flex justify-between items-center">
+    <div className="flex h-screen w-screen items-center justify-center bg-violet-900 p-10">
+      <div className="grid max-w-[1000px] grid-cols-2 gap-8 rounded-xl bg-white p-6 shadow-lg dark:bg-slate-900">
+        <div className="col-span-2 flex flex-col justify-between md:col-span-1">
+          <div className="flex items-center justify-between">
             <Logo size="small" />
             <div className="flex items-center">
-              <Link to="/" className="flex items-center gap-1">
-                <GitHubLogoIcon width={20} height={20} />
-                <span className="font-light text-sm">Github</span>
-              </Link>
-              <button className="ml-4">
-                <SunIcon width={20} height={20} />
-              </button>
+              <Gitbutton />
+              <div className="ml-4 flex items-center">
+                <ToggleThemeButton />
+              </div>
             </div>
           </div>
           <div
@@ -56,15 +144,39 @@ const Login = () => {
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
             }}
-            className="w-full rounded-md show md:hidden h-32 mt-4"
-          ></div>
+            className="show mt-6 w-full rounded-md md:hidden"
+          >
+            <Carousel className="h-fit w-full">
+              <CarouselContent>
+                {CarouselItems.map((item) => (
+                  <CarouselItem key={item.id}>
+                    <div className="p-1">
+                      <Card className="rounded-md border-gray-500 bg-black bg-opacity-50 text-white shadow-lg backdrop-blur-sm backdrop-filter">
+                        <CardContent className="p-6">
+                          {item.content}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-1/2 top-0 -translate-x-[120%] border-none bg-slate-950 text-white shadow-md hover:bg-slate-950 hover:text-white" />
+              <CarouselNext className="right-1/2 top-0 translate-x-[120%] border-none bg-slate-950 text-white shadow-md hover:bg-slate-950 hover:text-white" />
+            </Carousel>
+          </div>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="min-w-80 my-10 px-16 py-14 max-md:py-2 max-md:my-4 max-md:px-0"
+              className="my-8 min-w-80 px-16 py-5 max-md:my-4 max-md:px-0 max-md:py-2"
             >
-              <h3 className="text-2xl font-semibold">Đăng nhập</h3>
-              <p className="text-sm font-normal mt-2">
+              <div className="my-6 max-md:hidden">
+                <h2 className="text-2xl font-semibold text-violet-600">
+                  Shop Management
+                </h2>
+                <p className="text-sm font-normal">Phần mềm quản lý bán hàng</p>
+              </div>
+              <h3 className="text-xl font-semibold">Đăng nhập</h3>
+              <p className="mt-2 text-sm font-normal">
                 Chào mừng bạn trở lại 👋
               </p>
               <FormField
@@ -81,7 +193,7 @@ const Login = () => {
                       />
                     </FormControl>
                     <FormDescription />
-                    <FormMessage />
+                    <FormMessage className="text-red-500 dark:text-red-700" />
                   </FormItem>
                 )}
               />
@@ -99,32 +211,37 @@ const Login = () => {
                       />
                     </FormControl>
                     <FormDescription />
-                    <FormMessage />
+                    <FormMessage className="text-red-500 dark:text-red-700" />
                   </FormItem>
                 )}
               />
-              <div className="flex justify-between my-2">
+              <div className="my-2 flex justify-between">
                 <div className="flex items-center">
                   <Checkbox id="remember-password" />
                   <label
                     htmlFor="remember-password"
-                    className="text-sm select-none ml-1 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="ml-1 select-none text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    Ghi nhớ mật khẩu
+                    Duy trì đăng nhập
                   </label>
                 </div>
-                <Link to="/" className="text-sm text-violet-900 ml-10">
+                <Link to="/" className="ml-10 text-sm text-violet-500">
                   Quên mật khẩu?
                 </Link>
               </div>
-              <Button type="submit" className="w-full mt-4">
-                Xác nhận
+              <Button type="submit" className="mt-4 w-full">
+                {isPending ? (
+                  <ReloadIcon className="animate-spin" />
+                ) : (
+                  "Xác nhận"
+                )}
               </Button>
             </form>
           </Form>
-          <p className="text-sm text-gray-400 text-center">
-            @2024 coded by LeTuan
-          </p>
+          <div className="flex justify-between">
+            <p className="text-sm text-gray-400">@2024 developed by LeTuan</p>
+            <p className="text-sm text-gray-400">version: v1.0</p>
+          </div>
         </div>
         <div className="md:col-span-1">
           <div
@@ -133,8 +250,26 @@ const Login = () => {
               backgroundSize: "cover",
               backgroundRepeat: "no-repeat",
             }}
-            className="w-full h-full rounded-md"
-          ></div>
+            className="flex h-full w-full flex-col justify-end rounded-md"
+          >
+            <Carousel className="h-fit w-full max-md:hidden">
+              <CarouselContent>
+                {CarouselItems.map((item) => (
+                  <CarouselItem key={item.id}>
+                    <div className="p-1">
+                      <Card className="rounded-md border-gray-500 bg-black bg-opacity-50 text-white shadow-lg backdrop-blur-sm backdrop-filter">
+                        <CardContent className="p-6">
+                          {item.content}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-top-4 left-1/2 -translate-x-[120%] border-none bg-slate-950 text-white hover:bg-slate-950 hover:text-white" />
+              <CarouselNext className="-top-4 right-1/2 translate-x-[120%] border-none bg-slate-950 text-white hover:bg-slate-950 hover:text-white" />
+            </Carousel>
+          </div>
         </div>
       </div>
     </div>
