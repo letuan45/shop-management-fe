@@ -9,6 +9,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/utils";
 import Layout from "./components/shared/Layout";
 import Home from "./pages/home";
+import { RecoilRoot } from "recoil";
+import Employee from "./pages/employee";
 
 const router = createBrowserRouter([
   {
@@ -23,13 +25,23 @@ const router = createBrowserRouter([
       </Layout>
     ),
   },
+  {
+    path: "/employee",
+    element: (
+      <Layout>
+        <Employee />
+      </Layout>
+    ),
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router}></RouterProvider>
+        <RecoilRoot>
+          <RouterProvider router={router}></RouterProvider>
+        </RecoilRoot>
       </QueryClientProvider>
       <Toaster />
     </ThemeProvider>

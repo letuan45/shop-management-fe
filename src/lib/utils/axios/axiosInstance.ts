@@ -32,10 +32,10 @@ axiosInstance.interceptors.request.use(
           throw new Error("Refresh token error detected!");
         }
 
-        console.log(refreshResponse);
+        // console.log(refreshResponse);
       }
 
-      console.log("Access Token not found.");
+      // console.log("Access Token not found.");
     }
 
     return config;

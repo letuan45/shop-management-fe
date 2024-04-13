@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { loginSchema } from "@/lib/utils/schemas/loginShema";
+import { loginSchema } from "@/lib/utils/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,13 +29,11 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import ToggleThemeButton from "@/components/shared/ToggleThemeButton";
 import { useToast } from "@/components/ui/use-toast";
-import { IJWTTokenPayload, ILogin } from "@/interfaces/auth";
+import { ILogin, ILoginResult } from "@/interfaces/auth";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "@/services/authService";
-import { useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
-import { useCookies } from "react-cookie";
 import Gitbutton from "@/components/shared/Gitbutton";
+import { useLogin } from "@/hooks/useLogin";
 
 const CarouselItems = [
   {
@@ -71,12 +69,32 @@ const CarouselItems = [
 ];
 
 const Login = () => {
-  const [, setCookie] = useCookies(["accessToken", "refreshToken", "myCookie"]);
   const { toast } = useToast();
+  const { loginAction } = useLogin();
   const navigate = useNavigate();
-  const { mutate, data, isPending, isError } = useMutation({
+
+  const { mutate, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: login,
+    onSuccess: (data: ILoginResult) => {
+      toast({
+        title: "Thông báo: xác thực",
+        description: "Đăng nhập thành công!",
+        variant: "success",
+      });
+
+      const { accessToken, refreshToken } = data;
+      loginAction(accessToken, refreshToken);
+
+      navigate("/home");
+    },
+    onError: () => {
+      toast({
+        title: "Thông báo: xác thực",
+        description: "Tài khoản hoặc mật khẩu không chính xác!",
+        variant: "destructive",
+      });
+    },
   });
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -94,35 +112,6 @@ const Login = () => {
     };
     mutate(credentials);
   }
-
-  useEffect(() => {
-    if (isError) {
-      toast({
-        title: "Thông báo: xác thực",
-        description: "Tài khoản hoặc mật khẩu không chính xác!",
-        variant: "destructive",
-      });
-    }
-    if (data) {
-      toast({
-        title: "Thông báo: xác thực",
-        description: "Đăng nhập thành công!",
-        variant: "success",
-      });
-
-      const { accessToken, refreshToken } = data;
-      const decodedAT = jwtDecode<IJWTTokenPayload>(accessToken);
-      const decodedRT = jwtDecode<IJWTTokenPayload>(refreshToken);
-
-      const expireAT = decodedAT.exp * 1000;
-      const expireRT = decodedRT.exp * 1000;
-
-      setCookie("accessToken", accessToken, { expires: new Date(expireAT) });
-      setCookie("refreshToken", refreshToken, { expires: new Date(expireRT) });
-
-      navigate("/home");
-    }
-  }, [isError, toast, data, setCookie, navigate]);
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-violet-900 p-10">

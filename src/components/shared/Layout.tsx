@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import Logo from "./Logo";
 import {
   BackpackIcon,
@@ -8,18 +8,31 @@ import {
   GearIcon,
   HomeIcon,
   PersonIcon,
+  ReloadIcon,
   StarIcon,
 } from "@radix-ui/react-icons";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Gitbutton from "./Gitbutton";
 import ToggleThemeButton from "./ToggleThemeButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { userAtom } from "@/lib/utils/recoil/atom";
+import { useRecoilState } from "recoil";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { useLogout } from "@/hooks/useLogout";
 
 const NAVIGATION_LINKS = [
   {
@@ -81,15 +94,31 @@ const NAVIGATION_LINKS = [
 ];
 
 const Layout = (props: { children: JSX.Element }) => {
+  const [user, setUser] = useRecoilState(userAtom);
   const [sidebarIsExpansed, setSidebarIsExpansed] = useState(true);
+  const { logoutAction, isPending } = useLogout();
+
+  useEffect(() => {
+    if (user.id === 0) {
+      const storageUser = localStorage.getItem("user");
+      const userObj = storageUser ? JSON.parse(storageUser) : undefined;
+      if (userObj) {
+        setUser(userObj);
+      }
+    }
+  }, [user, setUser]);
 
   const toggleSidebarHandler = () => {
     setSidebarIsExpansed((oldState) => !oldState);
   };
 
+  const logoutHandler = () => {
+    logoutAction();
+  };
+
   const navItemClasses = `rounded-md my-2 block ${sidebarIsExpansed ? "px-4 py-2" : "p-3"} hover:bg-purple-500 hover:rounded-md hover:bg-clip-padding hover:backdrop-filter hover:backdrop-blur-sm hover:bg-opacity-30 ease-in flex items-center duration-100`;
 
-  const navItemActiveClasses = `rounded-md my-2 block ${sidebarIsExpansed ? "px-4 py-2" : "p-3"} bg-red-500 flex items-center duration-200 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 shadow-md shadow-indigo-500/20`;
+  const navItemActiveClasses = `rounded-md my-2 block ${sidebarIsExpansed ? "px-4 py-2" : "p-3"} flex items-center duration-200 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 shadow-md shadow-indigo-500/20`;
 
   return (
     <div className="relative flex bg-gray-100 dark:bg-slate-900">
@@ -196,7 +225,7 @@ const Layout = (props: { children: JSX.Element }) => {
         className={`w-full ${sidebarIsExpansed ? "ml-[220px]" : "ml-[80px]"}`}
       >
         {/* Header */}
-        <head className="flex h-16 items-center justify-between px-8 py-4 text-sm shadow-lg dark:bg-slate-950">
+        <div className="flex h-16 items-center justify-between px-8 py-4 text-sm shadow-lg dark:bg-slate-950">
           <div>
             Tài khoản{" "}
             <span className="rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 text-xs font-semibold text-white">
@@ -209,26 +238,50 @@ const Layout = (props: { children: JSX.Element }) => {
               <ToggleThemeButton />
             </div>
             <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarImage
+                src={user.image}
+                alt={user.fullName}
+                className="object-cover"
+              />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <div className="ml-2 flex flex-col justify-center">
               <span className="font-semibold text-slate-700 dark:text-gray-300">
-                Lê Tuấn
+                {user.fullName}
               </span>
               <span className="text-xs text-slate-500 dark:text-gray-400">
-                letuan@gmail.com
+                {user.email}
               </span>
             </div>
-            <button className="ml-4">
-              <GearIcon
-                width={20}
-                height={20}
-                // className="duration-4000 animate-spin"
-              />
-            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="ml-4">
+                  <GearIcon width={20} height={20} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <Link to="/">Thông tin nhân viên</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/">Thông tin tài khoản</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/">Hỗ trợ</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={logoutHandler}>
+                    Đăng xuất
+                    {isPending && <ReloadIcon className="ml-1 animate-spin" />}
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </head>
+        </div>
         <main className="block h-full  px-6 py-4">{props.children}</main>
       </div>
     </div>
