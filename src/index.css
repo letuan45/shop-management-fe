@@ -6,6 +6,26 @@
   font-family: "Noto Sans", sans-serif;
 }
 
+.rdp-caption_dropdowns {
+  display: flex;
+}
+
+.rdp-caption_dropdowns select {
+  @apply mx-1 rounded-sm bg-primary text-white;
+}
+
+.rdp [aria-hidden="true"] {
+  @apply hidden;
+}
+
+.rdp-vhidden {
+  @apply hidden;
+}
+
+select::-webkit-scrollbar {
+  display: none;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

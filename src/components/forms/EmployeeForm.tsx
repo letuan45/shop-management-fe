@@ -13,8 +13,14 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import Datepicker from "../shared/Datepicker";
 
-const EmployeeForm = () => {
+interface Props {
+  submitAction: (data: FormData) => void;
+}
+
+const EmployeeForm = ({ submitAction }: Props) => {
   const form = useForm<z.infer<typeof createEmployeeSchema>>({
     resolver: zodResolver(createEmployeeSchema),
     defaultValues: {
@@ -22,89 +28,156 @@ const EmployeeForm = () => {
       phone: "",
       email: "",
       address: "",
-      image: {},
+      image: undefined,
+      dateOfBirth: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof createEmployeeSchema>) {
-    console.log(values);
+    const employeeData = new FormData();
+    for (const key in values) {
+      if (Object.prototype.hasOwnProperty.call(values, key)) {
+        const value = values[key as keyof typeof values];
+        if (key === "image") {
+          employeeData.append(key, value[0]);
+        } else {
+          employeeData.append(key, value);
+        }
+      }
+    }
+
+    submitAction(employeeData);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Họ và tên (*)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Họ và tên ít nhất 2 ký tự"
-                  {...field}
-                  id="full-name"
-                />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Số điện thoại (*)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Nhập số điện thoại hợp lệ"
-                  {...field}
-                  id="phone"
-                />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email (*)</FormLabel>
-              <FormControl>
-                <Input placeholder="Nhập Email hợp lệ" {...field} id="email" />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Chọn hình ảnh từ máy (*)</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  id="image"
-                  type="file"
-                  value={""}
-                  className="dark:file:text-violet-400"
-                />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex w-full justify-end">
-          <Button type="submit">Xác nhận</Button>
+        <div className="grid w-full grid-cols-2 gap-4 max-sm:grid-cols-1 max-sm:gap-0">
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Họ và tên (*)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Họ và tên ít nhất 2 ký tự"
+                      {...field}
+                      id="full-name"
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Số điện thoại (*)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nhập số điện thoại hợp lệ"
+                      {...field}
+                      id="phone"
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email (*)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Nhập Email hợp lệ"
+                      {...field}
+                      id="email"
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chọn hình ảnh từ máy (*)</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      id="image"
+                      type="file"
+                      value={undefined}
+                      onChange={(e) => {
+                        const file = e.target.files;
+                        if (file) {
+                          field.onChange(file);
+                        }
+                      }}
+                      className="dark:file:text-violet-400"
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="col-span-1">
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Địa chỉ (*)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      className="min-h-28 max-sm:min-h-12"
+                      {...field}
+                      placeholder="Nhập địa chỉ"
+                      id="address"
+                    />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dateOfBirth"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ngày sinh (*)</FormLabel>
+                  <FormControl>
+                    <Datepicker field={{ ...field }} />
+                  </FormControl>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex w-full flex-col">
+              <p className="mb-3 text-sm italic max-sm:text-center">
+                Đảm bảo các dữ liệu bạn nhập không trùng
+              </p>
+              <Button className="w-full" type="submit">
+                Xác nhận
+              </Button>
+            </div>
+          </div>
         </div>
       </form>
     </Form>

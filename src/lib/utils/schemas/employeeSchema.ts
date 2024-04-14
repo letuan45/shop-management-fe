@@ -19,16 +19,20 @@ export const createEmployeeSchema = z.object({
     message: "Email không hợp lệ",
   }),
   address: z.string().trim().min(10, {
-    message: "Tên phải 10 ký tự trở lên",
+    message: "Địa chỉ phải 10 ký tự trở lên",
   }),
   image: z
     .any()
+    .refine((files) => files?.length == 1, "Bạn phải cung cấp hình ảnh.")
     .refine(
       (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `File không được vượt quá 5MB.`,
+      `Hình ảnh không được quá 5MB`,
     )
     .refine(
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      "Chỉ hỗ trợ các định dạng file .jpg, .jpeg, .png, .webp",
+      "Chỉ cho phép định dạng: .jpg, .jpeg, .png and .webp",
     ),
+  dateOfBirth: z.string().trim().min(1, {
+    message: "Bạn phải cung cấp ngày sinh",
+  }),
 });
