@@ -20,11 +20,13 @@ import React from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onEditEmployee: (emlpoyeeId: number) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onEditEmployee,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -36,6 +38,11 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     state: {
       sorting,
+    },
+    meta: {
+      onOpenEditEmployee: (employeeId: number) => {
+        onEditEmployee(employeeId);
+      },
     },
   });
 

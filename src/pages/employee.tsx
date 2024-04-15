@@ -20,28 +20,61 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { createEmployee, getAllEmployee } from "@/services/employeeService";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/components/ui/use-toast";
+import { queryClient } from "@/lib/utils";
+import {
+  createEmployee,
+  getAllEmployee,
+  getEmployee,
+} from "@/services/employeeService";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 const Employee = () => {
+  const [createDialogIsOpen, setCreateDialogIsOpen] = useState(false);
+  const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
+  const [editEmployeeId, setEditEmployeeId] = useState(0);
   const { data, isError, isLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: ({ signal }) => getAllEmployee({ signal }),
   });
 
-  const {
-    mutate: createAction,
-    isPending: createIsPending,
-    isError: isCreateError,
-    error: createError,
-  } = useMutation({
+  const { data: editEmployee, isLoading: getEmployeeIsLoading } = useQuery({
+    queryKey: ["employees", editEmployeeId],
+    queryFn: () => getEmployee(editEmployeeId),
+    enabled: editEmployeeId > 0,
+  });
+
+  const { mutate: createAction, isPending: createIsPending } = useMutation({
     mutationKey: ["createEmployee"],
     mutationFn: createEmployee,
+    onSuccess: () => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Tạo nhân viên thành công",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      setCreateDialogIsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const createEmployeeHandler = (data: FormData) => {
-    console.log(data);
+    createAction(data);
+  };
+
+  const handleOpenEditEmployeeHandler = (employeeIdPayload: number) => {
+    setEditDialogIsOpen(true);
+    setEditEmployeeId(employeeIdPayload);
   };
 
   return (
@@ -57,7 +90,11 @@ const Employee = () => {
             </div>
             <div className="flex items-center gap-4">
               <SearchBar />
-              <Dialog>
+              {/* Create Dialog */}
+              <Dialog
+                open={createDialogIsOpen}
+                onOpenChange={setCreateDialogIsOpen}
+              >
                 <DialogTrigger className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
                   <PlusCircledIcon className="mr-1" /> Thêm nhân viên
                 </DialogTrigger>
@@ -68,7 +105,46 @@ const Employee = () => {
                       Những trường có dấu (*) là những trường bắt buộc
                     </DialogDescription>
                   </DialogHeader>
-                  <EmployeeForm submitAction={createEmployeeHandler} />
+                  <EmployeeForm
+                    submitAction={createEmployeeHandler}
+                    isLoading={createIsPending}
+                  />
+                </DialogContent>
+              </Dialog>
+              {/* Update Dialog */}
+              <Dialog
+                open={editDialogIsOpen}
+                onOpenChange={setEditDialogIsOpen}
+              >
+                <DialogContent className="min-w-[650px] max-sm:min-w-[300px]">
+                  <DialogHeader>
+                    <DialogTitle>Sửa nhân viên</DialogTitle>
+                    <DialogDescription>
+                      Những trường có dấu (*) là những trường bắt buộc
+                    </DialogDescription>
+                  </DialogHeader>
+                  {getEmployeeIsLoading && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="col-span-1">
+                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
+                      </div>
+                      <div className="col-span-1">
+                        <Skeleton className="my-3 h-28 w-full rounded-md" />
+                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
+                      </div>
+                    </div>
+                  )}
+                  {editEmployee && (
+                    <EmployeeForm
+                      submitAction={createEmployeeHandler}
+                      isLoading={createIsPending}
+                      employee={editEmployee}
+                      isEdit
+                    />
+                  )}
                 </DialogContent>
               </Dialog>
             </div>
@@ -77,7 +153,12 @@ const Employee = () => {
         <CardContent>
           {isLoading && <LoadingIndicator />}
           {isError && <EmptyData />}
-          {data && <TableEmployee tableData={data.data} />}
+          {data && (
+            <TableEmployee
+              tableData={data.data}
+              onEditEmployee={handleOpenEditEmployeeHandler}
+            />
+          )}
         </CardContent>
         {data && Math.ceil(data.total / 10) > 2 && (
           <CardFooter className="flex justify-between">

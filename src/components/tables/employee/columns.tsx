@@ -74,39 +74,12 @@ export const columns: ColumnDef<IEmployee>[] = [
       );
     },
   },
-  //   {
-  //     accessorKey: "email",
-  //     header: ({ column }) => {
-  //       return (
-  //         <Button
-  //           variant="ghost"
-  //           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //         >
-  //           Email
-  //           <ArrowUpIcon className="ml-2 h-4 w-4" />
-  //         </Button>
-  //       );
-  //     },
-  //   },
-  //   {
-  //     accessorKey: "amount",
-  //     header: "Amount",
-  //     cell: ({ row }) => {
-  //       const amount = parseFloat(row.getValue("amount"));
-  //       const formatted = new Intl.NumberFormat("en-US", {
-  //         style: "currency",
-  //         currency: "VND",
-  //       }).format(amount);
-
-  //       return <div>{formatted}</div>;
-  //     },
-  //   },
   {
     header: "Action",
     id: "actions",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const employee = row.original;
-      console.log(employee);
+      console.log();
 
       return (
         <DropdownMenu>
@@ -125,7 +98,13 @@ export const columns: ColumnDef<IEmployee>[] = [
             <DropdownMenuItem className="cursor-pointer">
               Quản lý tài khoản
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => {
+                table.options.meta?.onOpenEditEmployee &&
+                  table.options.meta?.onOpenEditEmployee(employee.id);
+              }}
+            >
               Sửa thông tin
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -1,4 +1,7 @@
-import { createEmployeeSchema } from "@/lib/utils/schemas/employeeSchema";
+import {
+  createEmployeeSchema,
+  editEmployeeSchema,
+} from "@/lib/utils/schemas/employeeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,21 +18,26 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import Datepicker from "../shared/Datepicker";
-
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { IEmployee } from "@/interfaces/employee";
 interface Props {
   submitAction: (data: FormData) => void;
+  isLoading: boolean;
+  isEdit?: boolean;
+  employee?: IEmployee | undefined;
 }
 
-const EmployeeForm = ({ submitAction }: Props) => {
-  const form = useForm<z.infer<typeof createEmployeeSchema>>({
-    resolver: zodResolver(createEmployeeSchema),
+const EmployeeForm = ({ submitAction, isLoading, isEdit, employee }: Props) => {
+  const selectedSchema = isEdit ? editEmployeeSchema : createEmployeeSchema;
+  const form = useForm<z.infer<typeof selectedSchema>>({
+    resolver: zodResolver(selectedSchema),
     defaultValues: {
-      fullName: "",
-      phone: "",
-      email: "",
-      address: "",
+      fullName: employee ? `${employee.fullName}` : "",
+      phone: employee ? `${employee.phone}` : "",
+      email: employee ? `${employee.email}` : "",
+      address: employee ? `${employee.address}` : "",
       image: undefined,
-      dateOfBirth: "",
+      dateOfBirth: employee ? `${employee.dateOfBirth}` : "",
     },
   });
 
@@ -38,15 +46,20 @@ const EmployeeForm = ({ submitAction }: Props) => {
     for (const key in values) {
       if (Object.prototype.hasOwnProperty.call(values, key)) {
         const value = values[key as keyof typeof values];
-        if (key === "image") {
-          employeeData.append(key, value[0]);
-        } else {
-          employeeData.append(key, value);
+        if (value) {
+          if (key === "image") {
+            employeeData.append("file", value[0]);
+          } else {
+            employeeData.append(key, value);
+          }
         }
       }
     }
 
-    submitAction(employeeData);
+    for (const [key, value] of employeeData.entries()) {
+      console.log(`${key}:`, value);
+    }
+    // submitAction(employeeData);
   }
 
   return (
@@ -113,7 +126,9 @@ const EmployeeForm = ({ submitAction }: Props) => {
               name="image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chọn hình ảnh từ máy (*)</FormLabel>
+                  <FormLabel>
+                    Chọn hình ảnh từ máy {isEdit ? "(Đã có)" : "(*)"}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -174,7 +189,11 @@ const EmployeeForm = ({ submitAction }: Props) => {
                 Đảm bảo các dữ liệu bạn nhập không trùng
               </p>
               <Button className="w-full" type="submit">
-                Xác nhận
+                {isLoading ? (
+                  <ReloadIcon className="animate-spin" />
+                ) : (
+                  "Xác nhận"
+                )}
               </Button>
             </div>
           </div>

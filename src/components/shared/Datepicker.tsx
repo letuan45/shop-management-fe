@@ -14,6 +14,9 @@ const Datepicker = (props: { field: any }) => {
       const formatDate = dateDataFormat(date.toISOString());
       props.field.onChange(formatDate);
     }
+    if (props.field.value && !date) {
+      setDate(new Date(props.field.value));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
