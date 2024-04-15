@@ -25,6 +25,7 @@ import { toast } from "@/components/ui/use-toast";
 import { queryClient } from "@/lib/utils";
 import {
   createEmployee,
+  editEmployee,
   getAllEmployee,
   getEmployee,
 } from "@/services/employeeService";
@@ -36,17 +37,19 @@ const Employee = () => {
   const [createDialogIsOpen, setCreateDialogIsOpen] = useState(false);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
   const [editEmployeeId, setEditEmployeeId] = useState(0);
+
   const { data, isError, isLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: ({ signal }) => getAllEmployee({ signal }),
   });
 
-  const { data: editEmployee, isLoading: getEmployeeIsLoading } = useQuery({
+  const { data: editEmployeeData, isLoading: getEmployeeIsLoading } = useQuery({
     queryKey: ["employees", editEmployeeId],
     queryFn: () => getEmployee(editEmployeeId),
     enabled: editEmployeeId > 0,
   });
 
+  // Create
   const { mutate: createAction, isPending: createIsPending } = useMutation({
     mutationKey: ["createEmployee"],
     mutationFn: createEmployee,
@@ -68,8 +71,37 @@ const Employee = () => {
     },
   });
 
-  const createEmployeeHandler = (data: FormData) => {
-    createAction(data);
+  // Update
+  const { mutate: editAction, isPending: editIsPending } = useMutation({
+    mutationKey: ["editEmployee"],
+    mutationFn: editEmployee,
+    onSuccess: () => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Sửa nhân viên thành công",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      setEditDialogIsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createEmployeeHandler = (data: FormData | undefined) => {
+    data && createAction(data);
+  };
+
+  const editEmployeeHandler = (
+    data: FormData,
+    employeeId: number | undefined,
+  ) => {
+    employeeId && editAction({ formData: data, employeeId });
   };
 
   const handleOpenEditEmployeeHandler = (employeeIdPayload: number) => {
@@ -137,11 +169,11 @@ const Employee = () => {
                       </div>
                     </div>
                   )}
-                  {editEmployee && (
+                  {editEmployeeData && (
                     <EmployeeForm
-                      submitAction={createEmployeeHandler}
-                      isLoading={createIsPending}
-                      employee={editEmployee}
+                      submitEditAction={editEmployeeHandler}
+                      isLoading={editIsPending}
+                      employee={editEmployeeData}
                       isEdit
                     />
                   )}

@@ -5,6 +5,7 @@ import { AxiosError, AxiosResponse } from "axios";
 const GET_EMPLOYEE_URL = "employee";
 const CREATE_EMPLOYEE_URL = "employee/create";
 const GET_EMPLOYEE_DETAIL_URL = "employee";
+const EDIT_EMPLOPYEE_URL = "employee/update";
 
 export const getAllEmployee = async (getParams: {
   signal: AbortSignal;
@@ -89,6 +90,36 @@ export const createEmployee = async (
       method: "POST",
       url: CREATE_EMPLOYEE_URL,
       data: formData,
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+interface IEditEmployeePayload {
+  employeeId: number;
+  formData: FormData;
+}
+export const editEmployee = async (
+  payload: IEditEmployeePayload,
+): Promise<IEmployee> => {
+  try {
+    const response: AxiosResponse<IEmployee> = await axiosInstance({
+      method: "PUT",
+      url: EDIT_EMPLOPYEE_URL + "/" + payload.employeeId,
+      data: payload.formData,
     });
 
     return response.data;

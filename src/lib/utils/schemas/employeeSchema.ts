@@ -50,6 +50,7 @@ export const editEmployeeSchema = z.object({
   address: z.string().trim().min(10, {
     message: "Địa chỉ phải 10 ký tự trở lên",
   }),
+  isWorking: z.boolean(),
   image: z
     .any()
     .optional()

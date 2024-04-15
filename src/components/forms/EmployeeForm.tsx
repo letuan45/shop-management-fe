@@ -20,14 +20,22 @@ import { Textarea } from "../ui/textarea";
 import Datepicker from "../shared/Datepicker";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { IEmployee } from "@/interfaces/employee";
+import { Checkbox } from "../ui/checkbox";
 interface Props {
-  submitAction: (data: FormData) => void;
+  submitAction?: (data: FormData | undefined) => void;
+  submitEditAction?: (data: FormData, employeeId: number | undefined) => void;
   isLoading: boolean;
   isEdit?: boolean;
   employee?: IEmployee | undefined;
 }
 
-const EmployeeForm = ({ submitAction, isLoading, isEdit, employee }: Props) => {
+const EmployeeForm = ({
+  submitAction,
+  isLoading,
+  isEdit,
+  employee,
+  submitEditAction,
+}: Props) => {
   const selectedSchema = isEdit ? editEmployeeSchema : createEmployeeSchema;
   const form = useForm<z.infer<typeof selectedSchema>>({
     resolver: zodResolver(selectedSchema),
@@ -38,6 +46,7 @@ const EmployeeForm = ({ submitAction, isLoading, isEdit, employee }: Props) => {
       address: employee ? `${employee.address}` : "",
       image: undefined,
       dateOfBirth: employee ? `${employee.dateOfBirth}` : "",
+      isWorking: employee ? employee.isWorking : false,
     },
   });
 
@@ -46,7 +55,8 @@ const EmployeeForm = ({ submitAction, isLoading, isEdit, employee }: Props) => {
     for (const key in values) {
       if (Object.prototype.hasOwnProperty.call(values, key)) {
         const value = values[key as keyof typeof values];
-        if (value) {
+        console.log(value);
+        if (value || (key === "isWorking" && value === false)) {
           if (key === "image") {
             employeeData.append("file", value[0]);
           } else {
@@ -56,10 +66,11 @@ const EmployeeForm = ({ submitAction, isLoading, isEdit, employee }: Props) => {
       }
     }
 
-    for (const [key, value] of employeeData.entries()) {
-      console.log(`${key}:`, value);
+    if (isEdit) {
+      submitEditAction && submitEditAction(employeeData, employee?.id);
+    } else {
+      submitAction && submitAction(employeeData);
     }
-    // submitAction(employeeData);
   }
 
   return (
@@ -188,13 +199,43 @@ const EmployeeForm = ({ submitAction, isLoading, isEdit, employee }: Props) => {
               <p className="mb-3 text-sm italic max-sm:text-center">
                 Đảm bảo các dữ liệu bạn nhập không trùng
               </p>
-              <Button className="w-full" type="submit">
-                {isLoading ? (
-                  <ReloadIcon className="animate-spin" />
-                ) : (
-                  "Xác nhận"
+              <div className="flex items-center justify-between">
+                {isEdit && (
+                  <FormField
+                    control={form.control}
+                    name="isWorking"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center">
+                        <FormLabel>
+                          <label
+                            htmlFor="isWorking"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Đang làm việc
+                          </label>
+                        </FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            id="isWorking"
+                            className="!mt-0 ml-2"
+                            checked={field.value}
+                            onCheckedChange={() => field.onChange(!field.value)}
+                          />
+                        </FormControl>
+                        <FormDescription></FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              </Button>
+                <Button className="w-[48%]" type="submit">
+                  {isLoading ? (
+                    <ReloadIcon className="animate-spin" />
+                  ) : (
+                    "Xác nhận"
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
