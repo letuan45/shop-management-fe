@@ -16,24 +16,42 @@ interface Props {
 
 const CustomPagination = (props: Props) => {
   const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get("search") ?? undefined;
+  const fullPath =
+    window.location.pathname + `${searchTerm ? `?search=${searchTerm}` : ""}`;
+  const paramPrefix = searchTerm ? "&" : "?";
+
   const currentPage = searchParams.get("page")
     ? Number(searchParams.get("page"))
     : 1;
   const { totalItem, maxItemPerPage } = props;
-  const totalPages = Math.ceil(totalItem / maxItemPerPage);
+  const totalPages = Math.ceil(totalItem / maxItemPerPage) - 1;
   const paginationItems = [];
+
+  const prevPage = currentPage - 1;
+  const nextPage = currentPage + 1;
 
   // Previos
   paginationItems.push(
     <PaginationItem>
-      <PaginationPrevious href="#" />
+      <PaginationPrevious
+        className={
+          prevPage === 0 ? "pointer-events-none opacity-50" : undefined
+        }
+        href={`${fullPath}${paramPrefix}page=${prevPage}`}
+      />
     </PaginationItem>,
   );
 
   // 1st item
   paginationItems.push(
     <PaginationItem>
-      <PaginationLink href="#">1</PaginationLink>
+      <PaginationLink
+        href={`${fullPath}${paramPrefix}page=1`}
+        isActive={currentPage === 1}
+      >
+        1
+      </PaginationLink>
     </PaginationItem>,
   );
 
@@ -60,7 +78,12 @@ const CustomPagination = (props: Props) => {
   for (let i = startPage; i <= endPage; i++) {
     paginationItems.push(
       <PaginationItem>
-        <PaginationLink href="#">{i}</PaginationLink>
+        <PaginationLink
+          href={`${fullPath}${paramPrefix}page=${i}`}
+          isActive={currentPage === i}
+        >
+          {i}
+        </PaginationLink>
       </PaginationItem>,
     );
   }
@@ -77,20 +100,36 @@ const CustomPagination = (props: Props) => {
   // Add last page
   paginationItems.push(
     <PaginationItem>
-      <PaginationLink href="#">{totalPages}</PaginationLink>
+      <PaginationLink
+        href={`${fullPath}${paramPrefix}page=${totalPages + 1}`}
+        isActive={totalPages + 1 === currentPage}
+      >
+        {totalPages + 1}
+      </PaginationLink>
     </PaginationItem>,
   );
 
   // Add next button
   paginationItems.push(
     <PaginationItem>
-      <PaginationNext href="#" />
+      <PaginationNext
+        className={
+          nextPage > totalPages + 1
+            ? "pointer-events-none opacity-50"
+            : undefined
+        }
+        href={`${fullPath}${paramPrefix}page=${nextPage}`}
+      />
     </PaginationItem>,
   );
 
   return (
     <Pagination>
-      <PaginationContent>{paginationItems}</PaginationContent>
+      <PaginationContent>
+        {paginationItems.map((item, index) => (
+          <div key={index}>{item}</div>
+        ))}
+      </PaginationContent>
     </Pagination>
   );
 };

@@ -12,7 +12,12 @@ const SearchBar = () => {
       delete rest["search"];
       setSearchParams(rest);
     } else {
-      setSearchParams({ search: value });
+      const page = searchParams.get("page");
+      if (page) {
+        setSearchParams({ search: value, page });
+      } else {
+        setSearchParams({ search: value });
+      }
     }
   };
 

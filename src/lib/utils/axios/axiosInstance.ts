@@ -5,7 +5,6 @@ const REFRESH_TOKEN_URL = "http://3.27.63.149:8080/api/v1/auth/refresh";
 export const axiosInstance = axios.create({
   baseURL: "http://3.27.63.149:8080/api/v1/",
   timeout: 1000,
-  headers: { "X-Custom-Header": "foobar" },
 });
 
 axiosInstance.interceptors.request.use(
@@ -29,10 +28,13 @@ axiosInstance.interceptors.request.use(
         });
 
         if (!refreshResponse) {
+          // Redireact to login
+          console.log("Refresh token expired!");
           throw new Error("Refresh token error detected!");
         }
 
-        // console.log(refreshResponse);
+        const accessToken = refreshResponse.data.accessToken;
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
 
       // console.log("Access Token not found.");

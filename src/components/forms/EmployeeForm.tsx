@@ -50,12 +50,11 @@ const EmployeeForm = ({
     },
   });
 
-  function onSubmit(values: z.infer<typeof createEmployeeSchema>) {
+  function onSubmit(values: z.infer<typeof selectedSchema>) {
     const employeeData = new FormData();
     for (const key in values) {
       if (Object.prototype.hasOwnProperty.call(values, key)) {
         const value = values[key as keyof typeof values];
-        console.log(value);
         if (value || (key === "isWorking" && value === false)) {
           if (key === "image") {
             employeeData.append("file", value[0]);

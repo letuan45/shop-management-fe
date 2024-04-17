@@ -11,6 +11,7 @@ import Layout from "./components/shared/Layout";
 import Home from "./pages/home";
 import { RecoilRoot } from "recoil";
 import Employee from "./pages/employee";
+import Product from "./pages/product";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <Employee />
+      </Layout>
+    ),
+  },
+  {
+    path: "/product",
+    element: (
+      <Layout>
+        <Product />
       </Layout>
     ),
   },

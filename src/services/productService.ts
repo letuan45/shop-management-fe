@@ -1,18 +1,23 @@
-import { IEmployee } from "@/interfaces/employee";
+import { IProduct } from "@/interfaces/product";
 import { axiosInstance } from "@/lib/utils/axios/axiosInstance";
 import { AxiosError, AxiosResponse } from "axios";
 
-const GET_EMPLOYEE_URL = "employee";
-const CREATE_EMPLOYEE_URL = "employee/create";
-const GET_EMPLOYEE_DETAIL_URL = "employee";
-const EDIT_EMPLOPYEE_URL = "employee/update";
+const GET_ALL_PRODUCTS_URL = "product";
+const GET_ALL_CATE_URL = "category";
+const CREATE_CATE_URL = "category/create";
+const CREATE_PRODUCT_URL = "product/create";
 
-export const getAllEmployee = async (getParams: {
+interface ICategory {
+  id: number;
+  name: string;
+}
+
+export const getAllProduct = async (getParams: {
   signal: AbortSignal;
   page?: string | null | undefined;
   search?: string | null | undefined;
 }): Promise<{
-  data: IEmployee[];
+  data: IProduct[];
   total: number;
 }> => {
   try {
@@ -25,12 +30,13 @@ export const getAllEmployee = async (getParams: {
     } else if (!page && search) {
       queryParams = { search };
     }
+
     const response: AxiosResponse<{
-      data: IEmployee[];
+      data: IProduct[];
       total: number;
     }> = await axiosInstance({
       method: "GET",
-      url: GET_EMPLOYEE_URL,
+      url: GET_ALL_PRODUCTS_URL,
       params: queryParams,
       signal: getParams.signal,
     });
@@ -53,42 +59,11 @@ export const getAllEmployee = async (getParams: {
   }
 };
 
-export const getEmployee = async (
-  employeeId: number | undefined,
-): Promise<IEmployee> => {
+export const createProduct = async (formData: FormData): Promise<IProduct> => {
   try {
-    if (employeeId === undefined) {
-      throw new Error(
-        "An unexpected error occurred while making the API request",
-      );
-    }
-    const response: AxiosResponse<IEmployee> = await axiosInstance({
-      method: "GET",
-      url: GET_EMPLOYEE_DETAIL_URL + "/" + employeeId.toString(),
-    });
-    return response.data;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      if (error.response) {
-        throw new Error(error.response.data.message);
-      } else {
-        throw new Error("API request failed: request could not be sent");
-      }
-    } else {
-      throw new Error(
-        "An unexpected error occurred while making the API request",
-      );
-    }
-  }
-};
-
-export const createEmployee = async (
-  formData: FormData,
-): Promise<IEmployee> => {
-  try {
-    const response: AxiosResponse<IEmployee> = await axiosInstance({
+    const response: AxiosResponse<IProduct> = await axiosInstance({
       method: "POST",
-      url: CREATE_EMPLOYEE_URL,
+      url: CREATE_PRODUCT_URL,
       data: formData,
     });
 
@@ -96,7 +71,9 @@ export const createEmployee = async (
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(error.response.data.message);
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -108,25 +85,55 @@ export const createEmployee = async (
   }
 };
 
-interface IEditEmployeePayload {
-  employeeId: number;
-  formData: FormData;
-}
-export const editEmployee = async (
-  payload: IEditEmployeePayload,
-): Promise<IEmployee> => {
+export const getAllCategory = async (getParams: {
+  signal: AbortSignal;
+}): Promise<ICategory[]> => {
   try {
-    const response: AxiosResponse<IEmployee> = await axiosInstance({
-      method: "PUT",
-      url: EDIT_EMPLOPYEE_URL + "/" + payload.employeeId,
-      data: payload.formData,
+    const response: AxiosResponse<ICategory[]> = await axiosInstance({
+      method: "GET",
+      url: GET_ALL_CATE_URL,
+      signal: getParams.signal,
     });
 
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(error.response.data.message);
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+export const createCategory = async ({
+  name,
+}: {
+  name: string | undefined;
+}): Promise<ICategory> => {
+  try {
+    if (name === undefined) {
+      throw new Error("Dữ liệu không hợp lệ!");
+    }
+    const response: AxiosResponse<ICategory> = await axiosInstance({
+      method: "POST",
+      url: CREATE_CATE_URL,
+      data: { name },
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
       } else {
         throw new Error("API request failed: request could not be sent");
       }

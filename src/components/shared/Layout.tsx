@@ -124,7 +124,7 @@ const Layout = (props: { children: JSX.Element }) => {
     <div className="relative flex bg-gray-100 dark:bg-slate-900">
       {/* Side Bar */}
       <aside
-        className={`fixed left-0 top-0 h-screen ${sidebarIsExpansed ? "w-[220px]" : "w-[80px]"} bg-violet-950/100 text-white drop-shadow-sm duration-300 dark:bg-blue-950`}
+        className={`fixed left-0 top-0 h-screen ${sidebarIsExpansed ? "w-[220px]" : "w-[80px]"} z-50 bg-violet-950/100 text-white drop-shadow-sm duration-300 dark:bg-blue-950`}
       >
         <div
           className={`relative flex h-16 items-center border-b border-gray-400 px-4 py-3 ${!sidebarIsExpansed ? "justify-center" : ""}`}
@@ -222,7 +222,7 @@ const Layout = (props: { children: JSX.Element }) => {
         </nav>
       </aside>
       <div
-        className={`w-full ${sidebarIsExpansed ? "ml-[220px]" : "ml-[80px]"}`}
+        className={`w-full ${sidebarIsExpansed ? "ml-[220px] w-[calc(100%-220px)]" : "ml-[80px] w-[calc(100%-80px)]"}`}
       >
         {/* Header */}
         <div className="flex h-16 items-center justify-between px-8 py-4 text-sm shadow-lg dark:bg-slate-950">
@@ -282,7 +282,7 @@ const Layout = (props: { children: JSX.Element }) => {
             </DropdownMenu>
           </div>
         </div>
-        <main className="block h-full  px-6 py-4">{props.children}</main>
+        <main className="block h-full px-6 py-4">{props.children}</main>
       </div>
     </div>
   );

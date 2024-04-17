@@ -1,4 +1,5 @@
 import EmployeeForm from "@/components/forms/EmployeeForm";
+import CustomBreadcrumb from "@/components/shared/CustomBreadcrumb";
 import CustomPagination from "@/components/shared/CustomPagination";
 import EmptyData from "@/components/shared/EmptyData";
 import LoadingIndicator from "@/components/shared/LoadingIndicator";
@@ -29,18 +30,36 @@ import {
   getAllEmployee,
   getEmployee,
 } from "@/services/employeeService";
-import { PlusCircledIcon } from "@radix-ui/react-icons";
+import { PersonIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+
+const BREADCRUMB_ITEMS = [
+  {
+    id: 1,
+    href: "/",
+    title: "Trang chủ",
+  },
+  {
+    id: 2,
+    href: "/employee",
+    title: "Quản lý nhân sự",
+  },
+];
 
 const Employee = () => {
+  const [searchParams] = useSearchParams();
   const [createDialogIsOpen, setCreateDialogIsOpen] = useState(false);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
   const [editEmployeeId, setEditEmployeeId] = useState(0);
 
+  const page = searchParams.get("page");
+  const search = searchParams.get("search");
+
   const { data, isError, isLoading } = useQuery({
-    queryKey: ["employees"],
-    queryFn: ({ signal }) => getAllEmployee({ signal }),
+    queryKey: ["employees", page, search],
+    queryFn: ({ signal }) => getAllEmployee({ signal, page, search }),
   });
 
   const { data: editEmployeeData, isLoading: getEmployeeIsLoading } = useQuery({
@@ -111,7 +130,19 @@ const Employee = () => {
 
   return (
     <div>
-      <Card className="w-full">
+      <div className="flex justify-between">
+        <div className="mb-4 flex items-center font-semibold">
+          <PersonIcon
+            className="rounded-full bg-primary p-[0.35rem] text-white shadow-md"
+            width={30}
+            height={30}
+          />
+          <h1 className="ml-2">Quản lý nhân sự</h1>
+        </div>
+        <CustomBreadcrumb items={BREADCRUMB_ITEMS} />
+      </div>
+
+      <Card className="animate-fadeIn w-full">
         <CardHeader>
           <div className="flex w-full items-center justify-between">
             <div>
@@ -182,7 +213,7 @@ const Employee = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="h-[22rem] overflow-hidden max-lg:h-[23rem] max-md:h-[24rem]">
           {isLoading && <LoadingIndicator />}
           {isError && <EmptyData />}
           {data && (
@@ -192,9 +223,9 @@ const Employee = () => {
             />
           )}
         </CardContent>
-        {data && Math.ceil(data.total / 10) > 2 && (
+        {data && Math.ceil(data.total / 5) > 1 && (
           <CardFooter className="flex justify-between">
-            <CustomPagination totalItem={data.total} maxItemPerPage={10} />
+            <CustomPagination totalItem={data.total} maxItemPerPage={5} />
           </CardFooter>
         )}
       </Card>
