@@ -57,13 +57,12 @@ export const editProductSchema = z.object({
   image: z
     .any()
     .optional()
-    .refine((files) => files?.length == 1, "Bạn phải cung cấp hình ảnh.")
     .refine(
-      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+      (files) => files?.[0]?.size <= MAX_FILE_SIZE || !files,
       `Hình ảnh không được quá 5MB`,
     )
     .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type) || !files,
       "Chỉ cho phép định dạng: .jpg, .jpeg, .png and .webp",
     ),
   status: z

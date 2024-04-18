@@ -6,6 +6,8 @@ const GET_ALL_PRODUCTS_URL = "product";
 const GET_ALL_CATE_URL = "category";
 const CREATE_CATE_URL = "category/create";
 const CREATE_PRODUCT_URL = "product/create";
+const GET_PRODUCT_URL = "product";
+const EDIT_PRODUCT_URL = "product/update";
 
 interface ICategory {
   id: number;
@@ -134,6 +136,72 @@ export const createCategory = async ({
         throw new Error(
           `API request failed with status ${error.response.status}`,
         );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+export const getProduct = async ({
+  signal,
+  productId,
+}: {
+  signal: AbortSignal;
+  productId: number;
+}): Promise<IProduct> => {
+  try {
+    if (productId === undefined) {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+    const response: AxiosResponse<IProduct> = await axiosInstance({
+      method: "GET",
+      url: GET_PRODUCT_URL + "/" + productId.toString(),
+      signal,
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+interface IEditProductPayload {
+  productId: number;
+  formData: FormData;
+}
+export const editProduct = async (
+  payload: IEditProductPayload,
+): Promise<IProduct> => {
+  try {
+    const response: AxiosResponse<IProduct> = await axiosInstance({
+      method: "PUT",
+      url: EDIT_PRODUCT_URL + "/" + payload.productId,
+      data: payload.formData,
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }

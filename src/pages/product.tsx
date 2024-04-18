@@ -1,9 +1,10 @@
-import ProductFrom from "@/components/forms/ProductFrom";
+import ProductForm from "@/components/forms/ProductForm";
 import CustomBreadcrumb from "@/components/shared/CustomBreadcrumb";
 import CustomPagination from "@/components/shared/CustomPagination";
 import EmptyData from "@/components/shared/EmptyData";
 import LoadingIndicator from "@/components/shared/LoadingIndicator";
 import SearchBar from "@/components/shared/SearchBar";
+import TableProduct from "@/components/tables/product/tableProduct";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,8 +35,10 @@ import { queryClient } from "@/lib/utils";
 import {
   createCategory,
   createProduct,
+  editProduct,
   getAllCategory,
   getAllProduct,
+  getProduct,
 } from "@/services/productService";
 import {
   CubeIcon,
@@ -65,6 +68,8 @@ const Product = () => {
     useState(false);
   const [searchParams] = useSearchParams();
   const cateNameRef = useRef<HTMLInputElement>(null);
+  const [editProductIsOpen, setEditProductIsOpen] = useState(false);
+  const [editProductId, setEditProductId] = useState(0);
 
   const page = searchParams.get("page");
   const search = searchParams.get("search");
@@ -85,6 +90,13 @@ const Product = () => {
     queryKey: ["categories"],
     queryFn: ({ signal }) => getAllCategory({ signal }),
   });
+
+  const { data: editProductData, isLoading: editProductDataIsLoading } =
+    useQuery({
+      queryKey: ["product", { editProductId }],
+      queryFn: ({ signal }) => getProduct({ signal, productId: editProductId }),
+      enabled: editProductId > 0,
+    });
 
   const { mutate: createCateAction, isPending: createCateIsLoading } =
     useMutation({
@@ -129,6 +141,28 @@ const Product = () => {
       },
     });
 
+  const { mutate: editProductAction, isPending: editProductIsPending } =
+    useMutation({
+      mutationKey: ["editProduct"],
+      mutationFn: editProduct,
+      onSuccess: () => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Sửa sản phẩm thành công",
+          variant: "success",
+        });
+        queryClient.invalidateQueries({ queryKey: ["products"] });
+        setEditProductIsOpen(false);
+      },
+      onError: (error) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
+
   const createCateHandler = () => {
     const categoryName = cateNameRef.current?.value.trim();
 
@@ -147,6 +181,18 @@ const Product = () => {
     data && createProductAction(data);
   };
 
+  const editProductHandler = (
+    data: FormData,
+    productId: number | undefined,
+  ) => {
+    productId && editProductAction({ formData: data, productId });
+  };
+
+  const openEditProductHandler = (productId: number) => {
+    setEditProductIsOpen(true);
+    setEditProductId(productId);
+  };
+
   return (
     <div>
       <div className="flex justify-between">
@@ -160,7 +206,7 @@ const Product = () => {
         </div>
         <CustomBreadcrumb items={BREADCRUMB_ITEMS} />
       </div>
-      <Card className="animate-fadeIn w-full">
+      <Card className="w-full animate-fadeIn">
         <CardHeader>
           <div className="flex w-full items-center justify-between">
             <div>
@@ -187,7 +233,7 @@ const Product = () => {
                     </DialogDescription>
                   </DialogHeader>
                   {cateData && cateData.length > 0 && (
-                    <ProductFrom
+                    <ProductForm
                       submitAction={createProductHandler}
                       isLoading={createProductIsPending}
                       categories={cateData}
@@ -196,54 +242,65 @@ const Product = () => {
                 </DialogContent>
               </Dialog>
               {/* Update Dialog */}
-              {/* <Dialog
-                open={editDialogIsOpen}
-                onOpenChange={setEditDialogIsOpen}
+              <Dialog
+                open={editProductIsOpen}
+                onOpenChange={setEditProductIsOpen}
               >
                 <DialogContent className="min-w-[650px] max-sm:min-w-[300px]">
                   <DialogHeader>
-                    <DialogTitle>Sửa nhân viên</DialogTitle>
+                    <DialogTitle>Sửa sản phẩm</DialogTitle>
                     <DialogDescription>
                       Những trường có dấu (*) là những trường bắt buộc
                     </DialogDescription>
                   </DialogHeader>
-                  {getEmployeeIsLoading && (
+                  {editProductDataIsLoading && (
                     <div className="grid grid-cols-2 gap-4">
                       <div className="col-span-1">
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[55px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[55px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[55px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[55px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[55px] w-full rounded-md" />
                       </div>
                       <div className="col-span-1">
-                        <Skeleton className="my-3 h-28 w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[120px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[55px] w-full rounded-md" />
+                        <Skeleton className="my-3 h-[55px] w-full rounded-md" />
                       </div>
                     </div>
                   )}
-                  {editEmployeeData && (
-                    <EmployeeForm
-                      submitEditAction={editEmployeeHandler}
-                      isLoading={editIsPending}
-                      employee={editEmployeeData}
+                  {editProductData && cateData && (
+                    <ProductForm
+                      submitEditAction={editProductHandler}
+                      categories={cateData}
+                      isLoading={editProductIsPending}
+                      product={editProductData}
                       isEdit
                     />
                   )}
+                  {/* {editEmployeeData && (
+                  //   <EmployeeForm
+                  //     submitEditAction={editEmployeeHandler}
+                  //     isLoading={editIsPending}
+                  //     employee={editEmployeeData}
+                  //     isEdit
+                  //   />
+                  // )} */}
                 </DialogContent>
-              </Dialog> */}
+              </Dialog>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="h-[22rem] overflow-hidden max-lg:h-[23rem] max-md:h-[24rem]">
+        <CardContent className="h-[35rem] overflow-hidden max-lg:h-[23rem] max-md:h-[24rem]">
           {productsIsLoading && <LoadingIndicator />}
           {productsIsError ||
             (productsData && productsData.total === 0 && <EmptyData />)}
-          {/* {data && (
-            <TableEmployee
-              tableData={data.data}
-              onEditEmployee={handleOpenEditEmployeeHandler}
+          {productsData && (
+            <TableProduct
+              tableData={productsData.data}
+              onEditProduct={openEditProductHandler}
             />
-          )} */}
+          )}
         </CardContent>
         {productsData && Math.ceil(productsData.total / 5) > 1 && (
           <CardFooter className="flex justify-between">
@@ -255,7 +312,7 @@ const Product = () => {
         )}
       </Card>
       <div className="mt-4 grid grid-cols-3 gap-4">
-        <Card className="animate-fadeIn col-span-1">
+        <Card className="col-span-1 animate-fadeIn">
           <CardHeader>
             <div className="flex w-full items-center justify-between">
               <div>

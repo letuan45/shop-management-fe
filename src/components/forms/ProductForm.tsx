@@ -18,7 +18,7 @@ import {
 import { Input } from "../ui/input";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import NoImagePreload from "../../assets/images/no-image.jpg";
+import { Checkbox } from "../ui/checkbox";
 
 interface Props {
   submitAction?: (data: FormData | undefined) => void;
@@ -37,7 +38,7 @@ interface Props {
   categories: { id: number; name: string }[];
 }
 
-const ProductFrom = ({
+const ProductForm = ({
   submitAction,
   submitEditAction,
   isLoading,
@@ -47,18 +48,28 @@ const ProductFrom = ({
 }: Props) => {
   const selectedSchema = isEdit ? editProductSchema : createProductSchema;
   const [currentProductImage, setCurentProductImage] = useState("");
+  const [checkBoxIsActive, setCheckBoxIsActive] = useState(false);
   const form = useForm<z.infer<typeof selectedSchema>>({
     resolver: zodResolver(selectedSchema),
     defaultValues: {
-      name: "",
+      name: product ? product.name : "",
       image: undefined,
-      status: "",
-      importPrice: "",
-      exportPrice: "",
-      discount: "",
-      categoryId: "",
+      status: product ? `${product.status}` : "",
+      importPrice: product ? `${product.importPrice}` : "",
+      exportPrice: product ? `${product.exportPrice}` : "",
+      discount: product ? `${product.discount}` : "",
+      categoryId: product ? `${product.category?.id}` : "",
     },
   });
+
+  useEffect(() => {
+    if (product) {
+      setCurentProductImage(product.image);
+      if (product.status === 2) {
+        setCheckBoxIsActive(true);
+      }
+    }
+  }, [product]);
 
   function onSubmit(values: z.infer<typeof selectedSchema>) {
     const productFormData = new FormData();
@@ -78,6 +89,29 @@ const ProductFrom = ({
       }
 
       submitAction && submitAction(productFormData);
+    } else {
+      for (const key in values) {
+        if (Object.prototype.hasOwnProperty.call(values, key)) {
+          const value = values[key as keyof typeof values];
+          if (value && key !== "status") {
+            if (key === "image") {
+              productFormData.append("file", value[0]);
+            } else {
+              if (key === "categoryId") {
+                productFormData.append("cateId", value);
+              } else {
+                productFormData.append(key, value);
+              }
+            }
+          }
+        }
+      }
+      if (checkBoxIsActive) {
+        productFormData.append("status", "2");
+      } else {
+        productFormData.append("status", "0");
+      }
+      submitEditAction && submitEditAction(productFormData, product?.id);
     }
   }
 
@@ -158,6 +192,42 @@ const ProductFrom = ({
                 </FormItem>
               )}
             />
+            {isEdit && (
+              <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem className="flex items-center">
+                    <FormLabel>
+                      <label
+                        htmlFor="isActive"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Ngừng kinh doanh
+                      </label>
+                    </FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        disabled={product?.status === 2}
+                        id="isActive"
+                        className="!mt-0 ml-2"
+                        checked={checkBoxIsActive}
+                        onCheckedChange={() => {
+                          if (field.value === "1") {
+                            setCheckBoxIsActive(true);
+                            return field.onChange("2");
+                          }
+                          setCheckBoxIsActive(false);
+                          return field.onChange("1");
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription></FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
           <div className="col-span-1 flex flex-col items-center">
             <img
@@ -238,4 +308,4 @@ const ProductFrom = ({
   );
 };
 
-export default ProductFrom;
+export default ProductForm;

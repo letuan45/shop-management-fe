@@ -4,7 +4,7 @@ const REFRESH_TOKEN_URL = "http://3.27.63.149:8080/api/v1/auth/refresh";
 
 export const axiosInstance = axios.create({
   baseURL: "http://3.27.63.149:8080/api/v1/",
-  timeout: 1000,
+  timeout: 10000,
 });
 
 axiosInstance.interceptors.request.use(
