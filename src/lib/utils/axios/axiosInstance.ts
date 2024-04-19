@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const REFRESH_TOKEN_URL = "http://3.27.63.149:8080/api/v1/auth/refresh";
+const REFRESH_TOKEN_URL = `${import.meta.env.VITE_API_HOST}/auth/refresh`;
 
 export const axiosInstance = axios.create({
-  baseURL: "http://3.27.63.149:8080/api/v1/",
+  baseURL: import.meta.env.VITE_API_HOST,
   timeout: 10000,
 });
 

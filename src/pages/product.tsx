@@ -35,6 +35,7 @@ import { queryClient } from "@/lib/utils";
 import {
   createCategory,
   createProduct,
+  editCategory,
   editProduct,
   getAllCategory,
   getAllProduct,
@@ -42,6 +43,7 @@ import {
 } from "@/services/productService";
 import {
   CubeIcon,
+  Pencil1Icon,
   PlusCircledIcon,
   ReloadIcon,
   StackIcon,
@@ -68,8 +70,10 @@ const Product = () => {
     useState(false);
   const [searchParams] = useSearchParams();
   const cateNameRef = useRef<HTMLInputElement>(null);
+  const editCateNameRef = useRef<HTMLInputElement>(null);
   const [editProductIsOpen, setEditProductIsOpen] = useState(false);
   const [editProductId, setEditProductId] = useState(0);
+  const [editCateName, setEditCateName] = useState("");
 
   const page = searchParams.get("page");
   const search = searchParams.get("search");
@@ -118,6 +122,26 @@ const Product = () => {
         });
       },
     });
+
+  const { mutate: editCateAction, isPending: editCateIsPending } = useMutation({
+    mutationKey: ["editCategory"],
+    mutationFn: editCategory,
+    onSuccess: () => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Sửa danh mục sản phẩm thành công!",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const { mutate: createProductAction, isPending: createProductIsPending } =
     useMutation({
@@ -179,6 +203,20 @@ const Product = () => {
 
   const createProductHandler = (data: FormData | undefined) => {
     data && createProductAction(data);
+  };
+
+  const editCateHandler = (newName: string, cateId: number) => {
+    if (newName === editCateName) {
+      return;
+    } else if (newName === "") {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Dữ liệu không hợp lệ",
+        variant: "destructive",
+      });
+      return;
+    }
+    editCateAction({ cateId, cateName: newName });
   };
 
   const editProductHandler = (
@@ -278,14 +316,6 @@ const Product = () => {
                       isEdit
                     />
                   )}
-                  {/* {editEmployeeData && (
-                  //   <EmployeeForm
-                  //     submitEditAction={editEmployeeHandler}
-                  //     isLoading={editIsPending}
-                  //     employee={editEmployeeData}
-                  //     isEdit
-                  //   />
-                  // )} */}
                 </DialogContent>
               </Dialog>
             </div>
@@ -365,41 +395,6 @@ const Product = () => {
                   </PopoverContent>
                 </Popover>
                 {/* Update Dialog */}
-                {/* <Dialog
-                open={editDialogIsOpen}
-                onOpenChange={setEditDialogIsOpen}
-              >
-                <DialogContent className="min-w-[650px] max-sm:min-w-[300px]">
-                  <DialogHeader>
-                    <DialogTitle>Sửa nhân viên</DialogTitle>
-                    <DialogDescription>
-                      Những trường có dấu (*) là những trường bắt buộc
-                    </DialogDescription>
-                  </DialogHeader>
-                  {getEmployeeIsLoading && (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="col-span-1">
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                      </div>
-                      <div className="col-span-1">
-                        <Skeleton className="my-3 h-28 w-full rounded-md" />
-                        <Skeleton className="my-3 h-[50px] w-full rounded-md" />
-                      </div>
-                    </div>
-                  )}
-                  {editEmployeeData && (
-                    <EmployeeForm
-                      submitEditAction={editEmployeeHandler}
-                      isLoading={editIsPending}
-                      employee={editEmployeeData}
-                      isEdit
-                    />
-                  )}
-                </DialogContent>
-              </Dialog> */}
               </div>
             </div>
           </CardHeader>
@@ -418,9 +413,61 @@ const Product = () => {
               <ul>
                 {cateData.map((item) => (
                   <li key={item.id}>
-                    <Card className="my-2 flex items-center px-6 py-2">
-                      <StackIcon />
-                      <span className="ml-2">{item.name}</span>
+                    <Card className="my-2 flex items-center justify-between px-6 py-2">
+                      <div className="item-center flex">
+                        <StackIcon className="my-auto block" />
+                        <span className="ml-2">{item.name}</span>
+                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setEditCateName(item.name);
+                            }}
+                          >
+                            <Pencil1Icon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-60">
+                          <div className="grid gap-4">
+                            <div className="space-y-2">
+                              <h4 className="font-medium leading-none">
+                                Sửa danh mục
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                Sửa danh mục sản phẩm (không trùng)
+                              </p>
+                            </div>
+                            <div className="grid gap-2">
+                              <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="cate-name">Tên</Label>
+                                <Input
+                                  ref={editCateNameRef}
+                                  id="cate-name"
+                                  defaultValue={editCateName}
+                                  className="col-span-3 h-8"
+                                />
+                                <Button
+                                  className="col-span-4"
+                                  onClick={() => {
+                                    editCateHandler(
+                                      editCateNameRef.current?.value.trim() as string,
+                                      item.id,
+                                    );
+                                  }}
+                                >
+                                  {editCateIsPending ? (
+                                    <ReloadIcon className="animate-spin" />
+                                  ) : (
+                                    "Xác nhận"
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </Card>
                   </li>
                 ))}

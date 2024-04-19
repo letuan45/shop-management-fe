@@ -8,6 +8,7 @@ const CREATE_CATE_URL = "category/create";
 const CREATE_PRODUCT_URL = "product/create";
 const GET_PRODUCT_URL = "product";
 const EDIT_PRODUCT_URL = "product/update";
+const EDIT_CATE_URL = "category/update";
 
 interface ICategory {
   id: number;
@@ -195,6 +196,36 @@ export const editProduct = async (
       method: "PUT",
       url: EDIT_PRODUCT_URL + "/" + payload.productId,
       data: payload.formData,
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+export const editCategory = async ({
+  cateId,
+  cateName,
+}: {
+  cateId: number;
+  cateName: string;
+}): Promise<ICategory> => {
+  try {
+    const response: AxiosResponse<ICategory> = await axiosInstance({
+      method: "PUT",
+      url: EDIT_CATE_URL + "/" + cateId,
+      data: { name: cateName },
     });
 
     return response.data;

@@ -100,8 +100,8 @@ const Login = () => {
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "tuan",
-      password: "admin123",
+      username: "tuan1",
+      password: "123456",
     },
   });
 
