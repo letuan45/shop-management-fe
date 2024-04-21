@@ -19,19 +19,24 @@ export const getAllProduct = async (getParams: {
   signal: AbortSignal;
   page?: string | null | undefined;
   search?: string | null | undefined;
+  pageSize?: number | null | undefined;
 }): Promise<{
   data: IProduct[];
   total: number;
 }> => {
   try {
     let queryParams = {};
-    const { page, search } = getParams;
+    const { page, search, pageSize } = getParams;
     if (page && search) {
       queryParams = { page, search };
     } else if (page && !search) {
       queryParams = { page };
     } else if (!page && search) {
       queryParams = { search };
+    }
+
+    if (pageSize) {
+      queryParams = { ...queryParams, pageSize };
     }
 
     const response: AxiosResponse<{

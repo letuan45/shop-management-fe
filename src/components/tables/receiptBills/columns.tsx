@@ -10,37 +10,40 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
-import { ICategory, IProduct } from "@/interfaces/product";
 import { Badge } from "@/components/ui/badge";
+import { IReceiptBill } from "@/interfaces/receipt";
+import { dateFormat } from "@/lib/utils";
+import { IEmployee } from "@/interfaces/employee";
+import { ISupplier } from "@/interfaces/supplier";
 
-export const columns: ColumnDef<IProduct>[] = [
+export const columns: ColumnDef<IReceiptBill>[] = [
   {
-    accessorKey: "name",
-    header: "Tên sản phẩm",
+    accessorKey: "id",
+    header: "#Mã đơn",
   },
   {
-    accessorKey: "category",
-    header: "Danh mục",
+    accessorKey: "createAt",
+    header: "Ngày tạo",
     cell: ({ row }) => {
-      const cateName = row.getValue<ICategory>("category")["name"];
-      return <div>{cateName}</div>;
+      const createAt = row.getValue("createAt") as string;
+      return <div>{dateFormat(createAt)}</div>;
     },
   },
   {
-    accessorKey: "image",
-    header: "Ảnh",
+    accessorKey: "employee",
+    header: "Nhân viên tạo",
     cell: ({ row }) => {
-      const image = row.getValue("image") as string;
-      const name = row.getValue("name") as string;
-      return (
-        <div className="h-20 w-20">
-          <img
-            src={image}
-            alt={name}
-            className="h-full w-full rounded-md border border-slate-100 object-cover"
-          />
-        </div>
-      );
+      const employeeName = row.getValue<IEmployee>("employee").fullName;
+      return <div className="line-clamp-1">{employeeName}</div>;
+    },
+  },
+
+  {
+    accessorKey: "supplier",
+    header: "Nhà cung cấp",
+    cell: ({ row }) => {
+      const supplierName = row.getValue<ISupplier>("supplier").name;
+      return <div className="line-clamp-1">{supplierName}</div>;
     },
   },
   {
@@ -49,57 +52,29 @@ export const columns: ColumnDef<IProduct>[] = [
     cell: ({ row }) => {
       const status = Number(row.getValue("status"));
       if (status === 0) {
-        return <Badge variant="secondary">Hết hàng</Badge>;
-      } else if (status === 1) {
-        return <Badge>Còn hàng</Badge>;
+        return <Badge variant="secondary">Đã tạo</Badge>;
       }
-      return <Badge variant="destructive">Ngừng kinh doanh</Badge>;
+      return <Badge>Đã tạo</Badge>;
     },
   },
   {
-    accessorKey: "importPrice",
-    header: "Giá nhập",
+    accessorKey: "totalPayment",
+    header: "Tổng giá",
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("importPrice"));
+      const amount = parseFloat(row.getValue("totalPayment"));
       const formatted = new Intl.NumberFormat("vn-VN", {
         style: "currency",
         currency: "VND",
       }).format(amount);
 
       return <div>{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: "exportPrice",
-    header: "Giá bán",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("exportPrice"));
-      const formatted = new Intl.NumberFormat("vn-VN", {
-        style: "currency",
-        currency: "VND",
-      }).format(amount);
-
-      return <div>{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: "stock",
-    header: "Tồn",
-  },
-  {
-    accessorKey: "discount",
-    header: "Giảm giá",
-    cell: ({ row }) => {
-      const discount = parseFloat(row.getValue("discount"));
-
-      return <div>{discount.toFixed(2)}</div>;
     },
   },
   {
     header: "Action",
     id: "actions",
     cell: ({ row, table }) => {
-      const product = row.original;
+      const bill = row.original;
 
       return (
         <DropdownMenu>
@@ -118,8 +93,8 @@ export const columns: ColumnDef<IProduct>[] = [
             <DropdownMenuItem
               className="cursor-pointer"
               onClick={() => {
-                table.options.meta?.onOpenEditProduct &&
-                  table.options.meta?.onOpenEditProduct(product.id);
+                table.options.meta?.onOpenSpectingReceiptBill &&
+                  table.options.meta?.onOpenSpectingReceiptBill(bill.id);
               }}
             >
               Sửa thông tin

@@ -335,6 +335,7 @@ const Product = () => {
         {productsData && Math.ceil(productsData.total / 5) > 1 && (
           <CardFooter className="flex justify-between">
             <CustomPagination
+              pageParam="page"
               totalItem={productsData.total}
               maxItemPerPage={5}
             />

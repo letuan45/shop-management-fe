@@ -142,7 +142,7 @@ const Employee = () => {
         <CustomBreadcrumb items={BREADCRUMB_ITEMS} />
       </div>
 
-      <Card className="animate-fadeIn w-full">
+      <Card className="w-full animate-fadeIn">
         <CardHeader>
           <div className="flex w-full items-center justify-between">
             <div>
@@ -225,7 +225,11 @@ const Employee = () => {
         </CardContent>
         {data && Math.ceil(data.total / 5) > 1 && (
           <CardFooter className="flex justify-between">
-            <CustomPagination totalItem={data.total} maxItemPerPage={5} />
+            <CustomPagination
+              totalItem={data.total}
+              maxItemPerPage={5}
+              pageParam="page"
+            />
           </CardFooter>
         )}
       </Card>

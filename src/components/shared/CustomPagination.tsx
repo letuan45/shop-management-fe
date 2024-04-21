@@ -12,17 +12,19 @@ import {
 interface Props {
   totalItem: number;
   maxItemPerPage: number;
+  pageParam: string;
 }
 
 const CustomPagination = (props: Props) => {
+  const { pageParam } = props;
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get("search") ?? undefined;
   const fullPath =
     window.location.pathname + `${searchTerm ? `?search=${searchTerm}` : ""}`;
   const paramPrefix = searchTerm ? "&" : "?";
 
-  const currentPage = searchParams.get("page")
-    ? Number(searchParams.get("page"))
+  const currentPage = searchParams.get(pageParam)
+    ? Number(searchParams.get(pageParam))
     : 1;
   const { totalItem, maxItemPerPage } = props;
   const totalPages = Math.ceil(totalItem / maxItemPerPage) - 1;
@@ -38,7 +40,7 @@ const CustomPagination = (props: Props) => {
         className={
           prevPage === 0 ? "pointer-events-none opacity-50" : undefined
         }
-        href={`${fullPath}${paramPrefix}page=${prevPage}`}
+        href={`${fullPath}${paramPrefix}${pageParam}=${prevPage}`}
       />
     </PaginationItem>,
   );
@@ -47,7 +49,7 @@ const CustomPagination = (props: Props) => {
   paginationItems.push(
     <PaginationItem>
       <PaginationLink
-        href={`${fullPath}${paramPrefix}page=1`}
+        href={`${fullPath}${paramPrefix}${pageParam}=1`}
         isActive={currentPage === 1}
       >
         1
@@ -79,7 +81,7 @@ const CustomPagination = (props: Props) => {
     paginationItems.push(
       <PaginationItem>
         <PaginationLink
-          href={`${fullPath}${paramPrefix}page=${i}`}
+          href={`${fullPath}${paramPrefix}${pageParam}=${i}`}
           isActive={currentPage === i}
         >
           {i}
@@ -101,7 +103,7 @@ const CustomPagination = (props: Props) => {
   paginationItems.push(
     <PaginationItem>
       <PaginationLink
-        href={`${fullPath}${paramPrefix}page=${totalPages + 1}`}
+        href={`${fullPath}${paramPrefix}${pageParam}=${totalPages + 1}`}
         isActive={totalPages + 1 === currentPage}
       >
         {totalPages + 1}
@@ -118,7 +120,7 @@ const CustomPagination = (props: Props) => {
             ? "pointer-events-none opacity-50"
             : undefined
         }
-        href={`${fullPath}${paramPrefix}page=${nextPage}`}
+        href={`${fullPath}${paramPrefix}${pageParam}=${nextPage}`}
       />
     </PaginationItem>,
   );

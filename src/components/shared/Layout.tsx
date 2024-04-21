@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import Logo from "./Logo";
 import {
+  ArchiveIcon,
   BackpackIcon,
   BookmarkIcon,
   CubeIcon,
@@ -88,6 +89,13 @@ const NAVIGATION_LINKS = [
         bigIcon: <CubeIcon width={18} height={18} />,
         name: "Sản phẩm",
         link: "/product",
+      },
+      {
+        id: 3,
+        icon: <ArchiveIcon />,
+        bigIcon: <ArchiveIcon width={18} height={18} />,
+        name: "Nhập hàng",
+        link: "/receipt",
       },
     ],
   },
