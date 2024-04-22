@@ -1,5 +1,6 @@
 import {
   IReceiptBill,
+  IReceiptBillFull,
   IReceiptOrder,
   IReceiptOrderFull,
   IReceiptOrderTransfer,
@@ -13,6 +14,12 @@ const CREATE_RECEIPT_URL = "receipt/order";
 const GET_RECEIPT_ORDER_DETAIL_URL = "receipt/order";
 const ADD_ORDER_ITEM_URL = "receipt/order/add-item";
 const REMOVE_ORDER_ITEM_URL = "receipt/order/delete-item";
+const MINUS_ONE_ORDER_ITEM_URL = "receipt/order/minus-one-qty";
+const PLUS_ONE_ORDER_ITEM_URL = "receipt/order/plus-one-qty";
+const UPDATE_ORDER_ITEM_URL = "receipt/order/update-qty";
+const MAKE_BILL_URL = "receipt/bill/make-bill";
+const CANCEL_ORDER_URL = "receipt/order/cancel";
+const GET_RECEIPT_BILL_DETAIL_URL = "receipt/bill";
 
 export const getAllReceiptOrder = async (getParams: {
   signal: AbortSignal;
@@ -84,6 +91,39 @@ export const getReceiptOrder = async ({
     const response: AxiosResponse<IReceiptOrderFull> = await axiosInstance({
       method: "GET",
       url: GET_RECEIPT_ORDER_DETAIL_URL + "/" + orderId,
+      signal,
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+interface IGetReceiptBill {
+  signal: AbortSignal;
+  billId: number;
+}
+export const getReceiptBill = async ({
+  signal,
+  billId,
+}: IGetReceiptBill): Promise<IReceiptBillFull> => {
+  try {
+    const response: AxiosResponse<IReceiptBillFull> = await axiosInstance({
+      method: "GET",
+      url: GET_RECEIPT_BILL_DETAIL_URL + "/" + billId,
       signal,
     });
 
@@ -240,6 +280,150 @@ export const removeOrderItem = async ({
       method: "DELETE",
       url: REMOVE_ORDER_ITEM_URL,
       params: { orderDetailId },
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+export const minusOneDetailQty = async ({
+  orderDetailId,
+}: IRemoveOrderITem): Promise<IReceiptOrderFull> => {
+  try {
+    const response: AxiosResponse<IReceiptOrderFull> = await axiosInstance({
+      method: "PUT",
+      url: MINUS_ONE_ORDER_ITEM_URL,
+      params: { orderDetailId },
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+export const plusOneDetailQty = async ({
+  orderDetailId,
+}: IRemoveOrderITem): Promise<IReceiptOrderFull> => {
+  try {
+    const response: AxiosResponse<IReceiptOrderFull> = await axiosInstance({
+      method: "PUT",
+      url: PLUS_ONE_ORDER_ITEM_URL,
+      params: { orderDetailId },
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+interface IUpdateQuantity {
+  orderDetailId: number;
+  quantity: number;
+}
+export const updateReceiptDetailQty = async ({
+  orderDetailId,
+  quantity,
+}: IUpdateQuantity): Promise<IReceiptOrderFull> => {
+  try {
+    const response: AxiosResponse<IReceiptOrderFull> = await axiosInstance({
+      method: "PUT",
+      url: UPDATE_ORDER_ITEM_URL,
+      params: { orderDetailId, quantity },
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+export const makeReceiptBill = async ({
+  orderId,
+}: {
+  orderId: number;
+}): Promise<IReceiptOrderFull> => {
+  try {
+    const response: AxiosResponse<IReceiptOrderFull> = await axiosInstance({
+      method: "POST",
+      url: MAKE_BILL_URL,
+      params: { orderId },
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+export const cancelReceiptOrder = async ({
+  orderId,
+}: {
+  orderId: number;
+}): Promise<IReceiptOrderFull> => {
+  try {
+    const response: AxiosResponse<IReceiptOrderFull> = await axiosInstance({
+      method: "PUT",
+      url: CANCEL_ORDER_URL,
+      params: { orderId },
     });
     return response.data;
   } catch (error) {

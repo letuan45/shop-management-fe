@@ -1,9 +1,11 @@
 import CreateReceiptOrder from "@/components/create-receipt-order/CreateReceiptOrder";
+import ConfirmationDialog from "@/components/shared/ConfirmationDialog";
 import CustomBreadcrumb from "@/components/shared/CustomBreadcrumb";
 import CustomDatepicker from "@/components/shared/CustomDatepicker";
 import CustomPagination from "@/components/shared/CustomPagination";
 import EmptyData from "@/components/shared/EmptyData";
 import LoadingIndicator from "@/components/shared/LoadingIndicator";
+import ReceiptBillDetailDialog from "@/components/shared/ReceiptBillDetailDialog";
 import ReceiptOrderDetailDialog from "@/components/shared/ReceiptOrderDetailDialog";
 import TableReceiptBill from "@/components/tables/receiptBills/tableReceiptBill";
 import TableReceiptOrder from "@/components/tables/receiptOrder/tableReceiptOrder";
@@ -20,9 +22,11 @@ import UpdateReceiptOrder from "@/components/update-receipt-order/UpdateReceiptO
 import { IReceiptOrderTransfer } from "@/interfaces/receipt";
 import { queryClient } from "@/lib/utils";
 import {
+  cancelReceiptOrder,
   createReceiptOrder,
   getAllReceiptBill,
   getAllReceiptOrder,
+  makeReceiptBill,
 } from "@/services/receiptService";
 import {
   ArchiveIcon,
@@ -58,6 +62,12 @@ const Receipt = () => {
   const [orderDetailIsOpen, setOrderDetailIsOpen] = useState(false);
   const [updateOrderId, setUpdateOrderId] = useState(0);
   const [updateOrderIsOpen, setUpdateOrderIsOpen] = useState(false);
+  const [orderMakingBill, setOrderMakingBill] = useState(0);
+  const [isMakingBill, setIsMakingBill] = useState(false);
+  const [orderCancelling, setOrderCancelling] = useState(0);
+  const [isCancellingOrder, setIsCancellingOrder] = useState(false);
+  const [spectingBillIsOpen, setSpectingBillIsOpen] = useState(false);
+  const [spectingBillId, setSpecingBillId] = useState(0);
 
   const page = searchParams.get("page");
   const billPage = searchParams.get("billPage");
@@ -76,6 +86,59 @@ const Receipt = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["receptOrders"] });
       setCreateOrderIsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { mutate: makeReceiptBillAction, isPending: makeReceiptBillIsPending } =
+    useMutation({
+      mutationKey: ["makeBill"],
+      mutationFn: makeReceiptBill,
+      onSuccess: () => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Tạo hóa đơn thành công!",
+          variant: "success",
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["receptOrders"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["receptBills"],
+        });
+        setIsMakingBill(false);
+      },
+      onError: (error) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
+
+  const {
+    mutate: cancelReceipOrderAction,
+    isPending: cancelReceiptOrderIsPending,
+  } = useMutation({
+    mutationKey: ["cancelOrder"],
+    mutationFn: cancelReceiptOrder,
+    onSuccess: () => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Hủy đơn nhập thành công!",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["receptOrders"],
+      });
+      setIsCancellingOrder(false);
     },
     onError: (error) => {
       toast({
@@ -127,15 +190,57 @@ const Receipt = () => {
   };
 
   const handleSpectingBill = (billId: number) => {
-    console.log(billId);
+    setSpecingBillId(billId);
+    setSpectingBillIsOpen(true);
   };
 
   const createReceiptOrderHandler = (orderTransfer: IReceiptOrderTransfer) => {
     createReceiptOrderAction({ receiptOrder: orderTransfer });
   };
 
+  const handleOpenMakeBill = (orderId: number) => {
+    setOrderMakingBill(orderId);
+    setIsMakingBill(true);
+  };
+
+  const handleOpenCancelOrder = (orderId: number) => {
+    setOrderCancelling(orderId);
+    setIsCancellingOrder(true);
+  };
+
+  const handleConfirmCancelOrder = () => {
+    if (orderCancelling > 0) {
+      cancelReceipOrderAction({ orderId: orderCancelling });
+    }
+  };
+
+  const handleConfirmMakeBill = () => {
+    if (orderMakingBill > 0) {
+      makeReceiptBillAction({ orderId: orderMakingBill });
+    }
+  };
+
   return (
     <div>
+      {orderMakingBill > 0 && (
+        <ConfirmationDialog
+          isLoading={makeReceiptBillIsPending}
+          onConfirm={handleConfirmMakeBill}
+          isOpen={isMakingBill}
+          setIsOpen={setIsMakingBill}
+          description="Sau khi xác nhận đơn hàng, hệ thống sẽ tạo hóa đơn tương ứng và bạn không thể hoàn tác thao tác này!"
+        />
+      )}
+      {orderCancelling > 0 && (
+        <ConfirmationDialog
+          isLoading={cancelReceiptOrderIsPending}
+          onConfirm={handleConfirmCancelOrder}
+          isOpen={isCancellingOrder}
+          setIsOpen={setIsCancellingOrder}
+          description="Sau khi hủy đơn hàng bạn không thể hoàn tác thao tác này!"
+        />
+      )}
+      {/* Update Order */}
       {updateOrderId > 0 && (
         <UpdateReceiptOrder
           orderId={updateOrderId}
@@ -149,6 +254,14 @@ const Receipt = () => {
           orderId={spectingOrder}
           isOpen={orderDetailIsOpen}
           setIsOpen={setOrderDetailIsOpen}
+        />
+      )}
+      {/* Bill Detail Dialog */}
+      {spectingBillId > 0 && (
+        <ReceiptBillDetailDialog
+          billId={spectingBillId}
+          isOpen={spectingBillIsOpen}
+          setIsOpen={setSpectingBillIsOpen}
         />
       )}
       <div className="flex justify-between">
@@ -251,6 +364,8 @@ const Receipt = () => {
             {!receiptOrderIsLoading && receiOrdersIsError && <EmptyData />}
             {!receiptOrderIsLoading && !receiOrdersIsError && receiptOrders && (
               <TableReceiptOrder
+                onMakeBill={handleOpenMakeBill}
+                onCancelOrder={handleOpenCancelOrder}
                 tableData={receiptOrders.data}
                 onSpectingReceiptOrder={handleSpectingOrder}
                 onUpdateReceiptOrder={handleUpdatingOrder}

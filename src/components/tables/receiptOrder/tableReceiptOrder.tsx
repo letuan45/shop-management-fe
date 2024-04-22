@@ -7,6 +7,8 @@ interface Props {
   tableData: IReceiptOrder[];
   onSpectingReceiptOrder: (orderId: number) => void;
   onUpdateReceiptOrder: (orderId: number) => void;
+  onMakeBill: (orderId: number) => void;
+  onCancelOrder: (orderId: number) => void;
 }
 
 declare module "@tanstack/react-table" {
@@ -14,6 +16,8 @@ declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
     onOpenSpectingReceiptOrder?: (orderId: number) => void;
     onOpenUpdateReceiptOrder?: (orderId: number) => void;
+    onOpenMakeBill?: (orderId: number) => void;
+    onOpenCancelOrder?: (orderId: number) => void;
   }
 }
 
@@ -21,6 +25,12 @@ const TableReceiptOrder = (props: Props) => {
   return (
     <div>
       <DataTable
+        onCancelOrder={(orderId: number) => {
+          props.onCancelOrder(orderId);
+        }}
+        onMakeBill={(orderId: number) => {
+          props.onMakeBill(orderId);
+        }}
         onSpectingOrder={(orderId: number) => {
           props.onSpectingReceiptOrder(orderId);
         }}

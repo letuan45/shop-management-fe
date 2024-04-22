@@ -22,6 +22,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   onSpectingOrder: (orderId: number) => void;
   onUpdateOrder: (orderId: number) => void;
+  onMakeBill: (orderId: number) => void;
+  onCancelOrder: (orderId: number) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -29,6 +31,8 @@ export function DataTable<TData, TValue>({
   data,
   onSpectingOrder,
   onUpdateOrder,
+  onMakeBill,
+  onCancelOrder,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -47,6 +51,12 @@ export function DataTable<TData, TValue>({
       },
       onOpenUpdateReceiptOrder(orderId: number) {
         onUpdateOrder(orderId);
+      },
+      onOpenMakeBill(orderId: number) {
+        onMakeBill(orderId);
+      },
+      onOpenCancelOrder(orderId) {
+        onCancelOrder(orderId);
       },
     },
   });

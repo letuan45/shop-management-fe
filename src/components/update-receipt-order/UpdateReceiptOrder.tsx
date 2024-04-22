@@ -25,7 +25,10 @@ import {
 import {
   addOrderItem,
   getReceiptOrder,
+  minusOneDetailQty,
+  plusOneDetailQty,
   removeOrderItem,
+  updateReceiptDetailQty,
 } from "@/services/receiptService";
 import LoadingIndicator from "../shared/LoadingIndicator";
 import { toast } from "../ui/use-toast";
@@ -108,6 +111,73 @@ const UpdateReceiptOrder = ({ isOpen, setIsOpen, orderId }: Props) => {
       },
     });
 
+  const { mutate: minusOneAction, isPending: minusOneIsPending } = useMutation({
+    mutationKey: ["minus-one-qty"],
+    mutationFn: minusOneDetailQty,
+    onSuccess: () => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Sửa chi tiết đơn nhập thành công!",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["receipt-detail", orderId],
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { mutate: plusOneAction, isPending: plusOneIsPending } = useMutation({
+    mutationKey: ["plus-one-qty"],
+    mutationFn: plusOneDetailQty,
+    onSuccess: () => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Sửa chi tiết đơn nhập thành công!",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["receipt-detail", orderId],
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { mutate: updateQuantityAction, isPending: updateQuantityIsPending } =
+    useMutation({
+      mutationKey: ["update-qty"],
+      mutationFn: updateReceiptDetailQty,
+      onSuccess: () => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Sửa chi tiết đơn nhập thành công!",
+          variant: "success",
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["receipt-detail", orderId],
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
+
   const {
     data: receiptOrder,
     isLoading: receiptOrderIsLoading,
@@ -130,6 +200,8 @@ const UpdateReceiptOrder = ({ isOpen, setIsOpen, orderId }: Props) => {
           detailId: item.id,
         });
       });
+
+      innitOrderItems.sort((a, b) => a.detailId - b.detailId);
 
       setOrderItems(innitOrderItems);
       setChoosenSupplier(receiptOrder.supplierId);
@@ -164,11 +236,29 @@ const UpdateReceiptOrder = ({ isOpen, setIsOpen, orderId }: Props) => {
     removeOrderItemAction({ orderDetailId });
   };
 
-  const changeQuantityHandler = () => {};
+  const minusOneHandler = (orderDetailId: number) => {
+    minusOneAction({ orderDetailId });
+  };
+
+  const plusOneHandler = (orderDetailId: number) => {
+    plusOneAction({ orderDetailId });
+  };
+
+  const changeQuantityHandler = (orderDetailId: number, quantity: number) => {
+    if (quantity === 0) {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Dữ liệu không hợp lệ",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateQuantityAction({ orderDetailId, quantity });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="min-w-[1050px] max-sm:min-w-[300px]">
+      <DialogContent className="min-w-[1100px] max-sm:min-w-[300px]">
         <DialogHeader>
           <DialogTitle>Cập nhật đơn hàng nhập</DialogTitle>
         </DialogHeader>
@@ -239,11 +329,16 @@ const UpdateReceiptOrder = ({ isOpen, setIsOpen, orderId }: Props) => {
               <ul className="flex h-[372px] flex-col gap-2 overflow-y-auto">
                 {orderItems.map((item) => (
                   <OrderItem
+                    changeQtyValIsLoading={updateQuantityIsPending}
+                    onChangeQtyVal={changeQuantityHandler}
+                    onMinusOne={minusOneHandler}
+                    minusOneIsLoading={minusOneIsPending}
+                    onPlusOne={plusOneHandler}
+                    plusOneIsLoading={plusOneIsPending}
                     defaultValue={item.quantity}
                     isRemoving={removeOrderItemIsPending}
                     key={item.id}
                     isForUpdate
-                    onChangeQuantity={changeQuantityHandler}
                     item={item}
                     onRemoveOrderItem={() => {
                       removeOrderItemHandler(item.detailId);

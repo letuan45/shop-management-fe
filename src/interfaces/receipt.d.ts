@@ -35,6 +35,17 @@ export interface IReceiptBill {
   employee: IEmployee;
 }
 
+export interface IReceiptBillDetail {
+  id: number;
+  price: number;
+  quantity: number;
+  product: IProduct;
+}
+
+export interface IReceiptBillFull extends IReceiptBill {
+  receiptBillDetails: IReceiptBillDetail[];
+}
+
 export interface IReceiptOrderTransferItem {
   productId: number;
   quantity: number;

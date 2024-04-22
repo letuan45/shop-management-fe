@@ -84,19 +84,40 @@ export const columns: ColumnDef<IReceiptOrder>[] = [
             >
               Chi tiết
             </DropdownMenuItem>
+            {receipt.status === 0 && (
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => {
+                  table.options.meta?.onOpenMakeBill &&
+                    table.options.meta?.onOpenMakeBill(receipt.id);
+                }}
+              >
+                Xác nhận
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => {
-                table.options.meta?.onOpenUpdateReceiptOrder &&
-                  table.options.meta?.onOpenUpdateReceiptOrder(receipt.id);
-              }}
-            >
-              Sửa đơn hàng
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              Hủy đơn
-            </DropdownMenuItem>
+            {receipt.status === 0 && (
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => {
+                  table.options.meta?.onOpenUpdateReceiptOrder &&
+                    table.options.meta?.onOpenUpdateReceiptOrder(receipt.id);
+                }}
+              >
+                Sửa đơn hàng
+              </DropdownMenuItem>
+            )}
+            {receipt.status === 0 && (
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => {
+                  table.options.meta?.onOpenCancelOrder &&
+                    table.options.meta?.onOpenCancelOrder(receipt.id);
+                }}
+              >
+                Hủy đơn
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );

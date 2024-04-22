@@ -70,6 +70,8 @@ const CreateReceiptOrder = ({
         return acc + item.quantity * item.importPrice;
       }, 0);
       setSummary(sum);
+    } else {
+      setSummary(0);
     }
   }, [orderItems]);
 
@@ -158,11 +160,11 @@ const CreateReceiptOrder = ({
       <DialogTrigger className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
         <PlusCircledIcon className="mr-1" /> Đơn hàng
       </DialogTrigger>
-      <DialogContent className="min-w-[1050px] max-sm:min-w-[300px]">
+      <DialogContent className="min-w-[1100px] max-sm:min-w-[300px]">
         <DialogHeader>
           <DialogTitle>Tạo đơn hàng nhập</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-5 gap-5">
           <div className="relative col-span-3 flex h-[35rem] flex-col gap-2">
             <div className="relative flex items-center">
               <MagnifyingGlassIcon className="absolute left-2" />

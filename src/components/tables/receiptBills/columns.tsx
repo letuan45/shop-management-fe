@@ -86,9 +86,6 @@ export const columns: ColumnDef<IReceiptBill>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-            <DropdownMenuItem className="cursor-pointer">
-              Tra cứu giao dịch
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer"
@@ -97,7 +94,7 @@ export const columns: ColumnDef<IReceiptBill>[] = [
                   table.options.meta?.onOpenSpectingReceiptBill(bill.id);
               }}
             >
-              Sửa thông tin
+              Chi tiết
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
