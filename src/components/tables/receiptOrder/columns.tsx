@@ -75,10 +75,6 @@ export const columns: ColumnDef<IReceiptOrder>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-            <DropdownMenuItem className="cursor-pointer">
-              Tra cứu giao dịch
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer"
               onClick={() => {
@@ -86,7 +82,20 @@ export const columns: ColumnDef<IReceiptOrder>[] = [
                   table.options.meta?.onOpenSpectingReceiptOrder(receipt.id);
               }}
             >
-              Sửa thông tin
+              Chi tiết
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => {
+                table.options.meta?.onOpenUpdateReceiptOrder &&
+                  table.options.meta?.onOpenUpdateReceiptOrder(receipt.id);
+              }}
+            >
+              Sửa đơn hàng
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
+              Hủy đơn
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,4 +1,5 @@
 import { IEmployee } from "./employee";
+import { IProduct } from "./product";
 import { ISupplier } from "./supplier";
 
 export interface IReceiptOrder {
@@ -10,6 +11,17 @@ export interface IReceiptOrder {
   updateAt: string;
   supplier: ISupplier;
   employee: IEmployee;
+}
+
+export interface IReceiptOrderDetail {
+  id: number;
+  price: number;
+  quantity: number;
+  product: IProduct;
+}
+
+export interface IReceiptOrderFull extends IReceiptOrder {
+  ReceiptOrderDetail: IReceiptOrderDetail[];
 }
 
 export interface IReceiptBill {

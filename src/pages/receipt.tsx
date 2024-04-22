@@ -4,6 +4,7 @@ import CustomDatepicker from "@/components/shared/CustomDatepicker";
 import CustomPagination from "@/components/shared/CustomPagination";
 import EmptyData from "@/components/shared/EmptyData";
 import LoadingIndicator from "@/components/shared/LoadingIndicator";
+import ReceiptOrderDetailDialog from "@/components/shared/ReceiptOrderDetailDialog";
 import TableReceiptBill from "@/components/tables/receiptBills/tableReceiptBill";
 import TableReceiptOrder from "@/components/tables/receiptOrder/tableReceiptOrder";
 import {
@@ -14,14 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
+import UpdateReceiptOrder from "@/components/update-receipt-order/UpdateReceiptOrder";
 import { IReceiptOrderTransfer } from "@/interfaces/receipt";
 import { queryClient } from "@/lib/utils";
 import {
@@ -33,7 +28,6 @@ import {
   ArchiveIcon,
   FileTextIcon,
   Pencil2Icon,
-  PlusCircledIcon,
   ReaderIcon,
 } from "@radix-ui/react-icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -60,6 +54,10 @@ const Receipt = () => {
   const [fromBillDate, setFromBillDate] = useState("");
   const [toBillDate, setToBillDate] = useState("");
   const [createOrderIsOpen, setCreateOrderIsOpen] = useState(false);
+  const [spectingOrder, setSpectingOrder] = useState(0);
+  const [orderDetailIsOpen, setOrderDetailIsOpen] = useState(false);
+  const [updateOrderId, setUpdateOrderId] = useState(0);
+  const [updateOrderIsOpen, setUpdateOrderIsOpen] = useState(false);
 
   const page = searchParams.get("page");
   const billPage = searchParams.get("billPage");
@@ -119,7 +117,13 @@ const Receipt = () => {
   });
 
   const handleSpectingOrder = (orderId: number) => {
-    console.log(orderId);
+    setSpectingOrder(orderId);
+    setOrderDetailIsOpen(true);
+  };
+
+  const handleUpdatingOrder = (orderId: number) => {
+    setUpdateOrderId(orderId);
+    setUpdateOrderIsOpen(true);
   };
 
   const handleSpectingBill = (billId: number) => {
@@ -132,6 +136,21 @@ const Receipt = () => {
 
   return (
     <div>
+      {updateOrderId > 0 && (
+        <UpdateReceiptOrder
+          orderId={updateOrderId}
+          isOpen={updateOrderIsOpen}
+          setIsOpen={setUpdateOrderIsOpen}
+        />
+      )}
+      {/* Order Detail Dialog */}
+      {spectingOrder > 0 && (
+        <ReceiptOrderDetailDialog
+          orderId={spectingOrder}
+          isOpen={orderDetailIsOpen}
+          setIsOpen={setOrderDetailIsOpen}
+        />
+      )}
       <div className="flex justify-between">
         <div className="mb-4 flex items-center font-semibold">
           <ArchiveIcon
@@ -218,27 +237,12 @@ const Receipt = () => {
                   />
                 </div>
                 {/* Create Dialog */}
-                <Dialog
-                  open={createOrderIsOpen}
-                  onOpenChange={setCreateOrderIsOpen}
-                >
-                  <DialogTrigger className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
-                    <PlusCircledIcon className="mr-1" /> Đơn hàng
-                  </DialogTrigger>
-                  <DialogContent className="min-w-[1050px] max-sm:min-w-[300px]">
-                    <DialogHeader>
-                      <DialogTitle>Tạo đơn hàng nhập</DialogTitle>
-                    </DialogHeader>
-                    <CreateReceiptOrder
-                      isLoading={createReceiptOrderIsLoading}
-                      onCreateReceiptOrder={createReceiptOrderHandler}
-                    />
-                    {/* <EmployeeForm
-                      submitAction={createEmployeeHandler}
-                      isLoading={createIsPending}
-                    /> */}
-                  </DialogContent>
-                </Dialog>
+                <CreateReceiptOrder
+                  isOpen={createOrderIsOpen}
+                  setIsOpen={setCreateOrderIsOpen}
+                  isLoading={createReceiptOrderIsLoading}
+                  onCreateReceiptOrder={createReceiptOrderHandler}
+                />
               </div>
             </div>
           </CardHeader>
@@ -249,6 +253,7 @@ const Receipt = () => {
               <TableReceiptOrder
                 tableData={receiptOrders.data}
                 onSpectingReceiptOrder={handleSpectingOrder}
+                onUpdateReceiptOrder={handleUpdatingOrder}
               />
             )}
           </CardContent>

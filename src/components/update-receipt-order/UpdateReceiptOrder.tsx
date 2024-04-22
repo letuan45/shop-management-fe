@@ -1,10 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import { Card } from "../ui/card";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getAllProduct } from "@/services/productService";
+import { Skeleton } from "../ui/skeleton";
 import EmptyData from "../shared/EmptyData";
 import ProductReceiptItem from "../shared/ProductReceiptItem";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { currencyFormat, queryClient } from "@/lib/utils";
+import { getAllSupplier } from "@/services/supplierService";
+import CustomPagination from "../shared/CustomPagination";
+import OrderItem from "../shared/OrderItem";
+import { Card } from "../ui/card";
 import {
   Select,
   SelectContent,
@@ -14,27 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useCallback, useEffect, useState } from "react";
-import OrderItem from "../shared/OrderItem";
-import CustomPagination from "../shared/CustomPagination";
-import { useSearchParams } from "react-router-dom";
-import { Skeleton } from "../ui/skeleton";
-import { getAllSupplier } from "@/services/supplierService";
-import { MagnifyingGlassIcon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { currencyFormat } from "@/lib/utils";
 import {
-  IReceiptOrderTransfer,
-  IReceiptOrderTransferItem,
-} from "@/interfaces/receipt";
-import { toast } from "../ui/use-toast";
+  addOrderItem,
+  getReceiptOrder,
+  removeOrderItem,
+} from "@/services/receiptService";
 import LoadingIndicator from "../shared/LoadingIndicator";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { toast } from "../ui/use-toast";
 
 interface IOrderItem {
   id: number;
@@ -42,21 +36,16 @@ interface IOrderItem {
   quantity: number;
   image: string;
   importPrice: number;
+  detailId: number;
 }
 
 interface Props {
-  onCreateReceiptOrder: (orderTransfer: IReceiptOrderTransfer) => void;
-  isLoading: boolean;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  orderId: number;
 }
 
-const CreateReceiptOrder = ({
-  onCreateReceiptOrder,
-  isLoading,
-  isOpen,
-  setIsOpen,
-}: Props) => {
+const UpdateReceiptOrder = ({ isOpen, setIsOpen, orderId }: Props) => {
   const [searchParams] = useSearchParams();
   const page = searchParams.get("pageProduct");
   const [orderItems, setOrderItems] = useState<IOrderItem[]>([]);
@@ -72,6 +61,80 @@ const CreateReceiptOrder = ({
       setSummary(sum);
     }
   }, [orderItems]);
+
+  const { mutate: addOrderItemAction, isPending: addOrderItemIsLoading } =
+    useMutation({
+      mutationKey: ["add-order-item"],
+      mutationFn: addOrderItem,
+      onSuccess: () => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Thêm chi tiết đơn nhập thành công!",
+          variant: "success",
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["receipt-detail", orderId],
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
+
+  const { mutate: removeOrderItemAction, isPending: removeOrderItemIsPending } =
+    useMutation({
+      mutationKey: ["remove-order-detail"],
+      mutationFn: removeOrderItem,
+      onSuccess: () => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Xóa chi tiết đơn nhập thành công!",
+          variant: "success",
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["receipt-detail", orderId],
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
+
+  const {
+    data: receiptOrder,
+    isLoading: receiptOrderIsLoading,
+    isError: receiptOrderIsError,
+  } = useQuery({
+    queryKey: ["receipt-detail", orderId],
+    queryFn: ({ signal }) => getReceiptOrder({ signal, orderId }),
+  });
+
+  useEffect(() => {
+    if (receiptOrder) {
+      const innitOrderItems: IOrderItem[] = [];
+      receiptOrder.ReceiptOrderDetail.forEach((item) => {
+        innitOrderItems.push({
+          id: item.product.id,
+          image: item.product.image,
+          importPrice: item.price,
+          name: item.product.name,
+          quantity: item.quantity,
+          detailId: item.id,
+        });
+      });
+
+      setOrderItems(innitOrderItems);
+      setChoosenSupplier(receiptOrder.supplierId);
+    }
+  }, [receiptOrder]);
 
   const {
     data: productsData,
@@ -92,76 +155,25 @@ const CreateReceiptOrder = ({
     queryFn: ({ signal }) => getAllSupplier({ signal }),
   });
 
-  const chooseItemHandler = (
-    productId: number,
-    quantity: number,
-    name: string,
-    image: string,
-    importPrice: number,
-  ) => {
-    setOrderItems((oldState) => [
-      ...oldState,
-      { id: productId, quantity, name, image, importPrice },
-    ]);
+  const chooseItemHandler = (productId: number, quantity: number) => {
+    if (!receiptOrder) return;
+    addOrderItemAction({ orderId: receiptOrder.id, productId, quantity });
   };
 
-  const removeOrderItemHandler = (orderId: number) => {
-    setOrderItems((oldState) => [
-      ...oldState.filter((item) => item.id !== orderId),
-    ]);
+  const removeOrderItemHandler = (orderDetailId: number) => {
+    removeOrderItemAction({ orderDetailId });
   };
 
-  const createReceiptOrderHandler = () => {
-    if (choosenSupplier === 0) {
-      toast({
-        title: "Thông báo: Thao tác người dùng",
-        description: "Hãy chọn nhà cung cấp",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (orderItems.length === 0) {
-      toast({
-        title: "Thông báo: Thao tác người dùng",
-        description: "Đơn hàng không được trống!",
-        variant: "destructive",
-      });
-      return;
-    }
-    const receiptOrderItems: IReceiptOrderTransferItem[] = [];
-    orderItems.forEach((item) => {
-      receiptOrderItems.push({ productId: item.id, quantity: item.quantity });
-    });
-    const receiptOrderTransfer: IReceiptOrderTransfer = {
-      supplierId: choosenSupplier,
-      receiptOrderItems,
-    };
-    onCreateReceiptOrder(receiptOrderTransfer);
-  };
-
-  const changeQuantityHandler = useCallback(
-    (orderItemId: number, quantity: number) => {
-      setOrderItems((oldState) =>
-        [...oldState].map((item) => {
-          if (item.id === orderItemId && item.quantity !== quantity) {
-            return { ...item, quantity };
-          }
-          return item;
-        }),
-      );
-    },
-    [],
-  );
+  const changeQuantityHandler = () => {};
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
-        <PlusCircledIcon className="mr-1" /> Đơn hàng
-      </DialogTrigger>
       <DialogContent className="min-w-[1050px] max-sm:min-w-[300px]">
         <DialogHeader>
-          <DialogTitle>Tạo đơn hàng nhập</DialogTitle>
+          <DialogTitle>Cập nhật đơn hàng nhập</DialogTitle>
         </DialogHeader>
+        {receiptOrderIsLoading && <LoadingIndicator />}
+        {receiptOrderIsError && <div>Lỗi khi load đơn hàng</div>}
         <div className="grid grid-cols-5 gap-4">
           <div className="relative col-span-3 flex h-[35rem] flex-col gap-2">
             <div className="relative flex items-center">
@@ -198,7 +210,9 @@ const CreateReceiptOrder = ({
                   return (
                     <li key={productItem.id} className="col-span-1">
                       <ProductReceiptItem
-                        isActive={isHasProduct ? false : true}
+                        isActive={
+                          isHasProduct || addOrderItemIsLoading ? false : true
+                        }
                         item={productItem}
                         onChooseItem={chooseItemHandler}
                       />
@@ -225,10 +239,15 @@ const CreateReceiptOrder = ({
               <ul className="flex h-[372px] flex-col gap-2 overflow-y-auto">
                 {orderItems.map((item) => (
                   <OrderItem
+                    defaultValue={item.quantity}
+                    isRemoving={removeOrderItemIsPending}
                     key={item.id}
+                    isForUpdate
                     onChangeQuantity={changeQuantityHandler}
                     item={item}
-                    onRemoveOrderItem={removeOrderItemHandler}
+                    onRemoveOrderItem={() => {
+                      removeOrderItemHandler(item.detailId);
+                    }}
                   />
                 ))}
               </ul>
@@ -246,6 +265,8 @@ const CreateReceiptOrder = ({
               )}
               {!supplierIsLoading && suppliers && (
                 <Select
+                  disabled
+                  defaultValue={choosenSupplier > 0 ? `${choosenSupplier}` : ""}
                   onValueChange={(val) => {
                     setChoosenSupplier(+val);
                   }}
@@ -265,9 +286,6 @@ const CreateReceiptOrder = ({
                   </SelectContent>
                 </Select>
               )}
-              <Button className="w-full" onClick={createReceiptOrderHandler}>
-                {isLoading ? <LoadingIndicator /> : "Tạo đơn nhập"}
-              </Button>
             </div>
           </Card>
         </div>
@@ -276,4 +294,4 @@ const CreateReceiptOrder = ({
   );
 };
 
-export default CreateReceiptOrder;
+export default UpdateReceiptOrder;
