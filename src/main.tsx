@@ -13,6 +13,7 @@ import { RecoilRoot } from "recoil";
 import Employee from "./pages/employee";
 import Product from "./pages/product";
 import Receipt from "./pages/receipt";
+import Supplier from "./pages/supplier";
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <Receipt />
+      </Layout>
+    ),
+  },
+  {
+    path: "/supplier",
+    element: (
+      <Layout>
+        <Supplier />
       </Layout>
     ),
   },

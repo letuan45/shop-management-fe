@@ -264,8 +264,8 @@ const Receipt = () => {
           setIsOpen={setSpectingBillIsOpen}
         />
       )}
-      <div className="flex justify-between">
-        <div className="mb-4 flex items-center font-semibold">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center font-semibold">
           <ArchiveIcon
             className="rounded-full bg-primary p-[0.35rem] text-white shadow-md"
             width={30}

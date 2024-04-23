@@ -8,6 +8,7 @@ import {
   DoubleArrowLeftIcon,
   GearIcon,
   HomeIcon,
+  Link2Icon,
   PersonIcon,
   ReloadIcon,
   StarIcon,
@@ -92,6 +93,13 @@ const NAVIGATION_LINKS = [
       },
       {
         id: 3,
+        icon: <Link2Icon />,
+        bigIcon: <Link2Icon width={18} height={18} />,
+        name: "Nhà cung cấp",
+        link: "/supplier",
+      },
+      {
+        id: 4,
         icon: <ArchiveIcon />,
         bigIcon: <ArchiveIcon width={18} height={18} />,
         name: "Nhập hàng",

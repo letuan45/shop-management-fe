@@ -232,9 +232,9 @@ const Product = () => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between">
-        <div className="mb-4 flex items-center font-semibold">
+    <section>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center font-semibold">
           <CubeIcon
             className="rounded-full bg-primary p-[0.35rem] text-white shadow-md"
             width={30}
@@ -477,7 +477,7 @@ const Product = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </section>
   );
 };
 
