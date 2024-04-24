@@ -20,13 +20,14 @@ export const getAllProduct = async (getParams: {
   page?: string | null | undefined;
   search?: string | null | undefined;
   pageSize?: number | null | undefined;
+  isForSell?: boolean | null | undefined;
 }): Promise<{
   data: IProduct[];
   total: number;
 }> => {
   try {
     let queryParams = {};
-    const { page, search, pageSize } = getParams;
+    const { page, search, pageSize, isForSell } = getParams;
     if (page && search) {
       queryParams = { page, search };
     } else if (page && !search) {
@@ -37,6 +38,10 @@ export const getAllProduct = async (getParams: {
 
     if (pageSize) {
       queryParams = { ...queryParams, pageSize };
+    }
+
+    if (isForSell === true) {
+      queryParams = { ...queryParams, isForSell };
     }
 
     const response: AxiosResponse<{

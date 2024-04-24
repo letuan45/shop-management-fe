@@ -15,6 +15,7 @@ import Product from "./pages/product";
 import Receipt from "./pages/receipt";
 import Supplier from "./pages/supplier";
 import Customer from "./pages/customer";
+import Selling from "./pages/selling";
 
 const router = createBrowserRouter([
   {
@@ -66,6 +67,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <Customer />
+      </Layout>
+    ),
+  },
+  {
+    path: "/selling",
+    element: (
+      <Layout>
+        <Selling />
       </Layout>
     ),
   },
