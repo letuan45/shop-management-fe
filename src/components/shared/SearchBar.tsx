@@ -2,21 +2,26 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { Input } from "../ui/input";
 import { useSearchParams } from "react-router-dom";
 
-const SearchBar = () => {
+interface Props {
+  param?: string;
+}
+
+const SearchBar = ({ param }: Props) => {
+  const actualParam = param ?? "search";
   const [searchParams, setSearchParams] = useSearchParams();
 
   const changeSearchHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target?.value;
     if (value.trim() === "") {
       const rest = Object.fromEntries(searchParams.entries());
-      delete rest["search"];
+      delete rest[actualParam];
       setSearchParams(rest);
     } else {
       const page = searchParams.get("page");
       if (page) {
-        setSearchParams({ search: value, page });
+        setSearchParams({ [`${actualParam}`]: value, page });
       } else {
-        setSearchParams({ search: value });
+        setSearchParams({ [`${actualParam}`]: value });
       }
     }
   };

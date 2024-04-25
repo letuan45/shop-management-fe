@@ -7,7 +7,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { getAllProduct } from "@/services/productService";
 import { Skeleton } from "../ui/skeleton";
 import EmptyData from "../shared/EmptyData";
-import ProductReceiptItem from "../shared/ProductReceiptItem";
+import ProductOrderItem from "../shared/ProductOrderItem";
 import { currencyFormat, queryClient } from "@/lib/utils";
 import { getAllSupplier } from "@/services/supplierService";
 import CustomPagination from "../shared/CustomPagination";
@@ -299,7 +299,7 @@ const UpdateReceiptOrder = ({ isOpen, setIsOpen, orderId }: Props) => {
                     ) >= 0;
                   return (
                     <li key={productItem.id} className="col-span-1">
-                      <ProductReceiptItem
+                      <ProductOrderItem
                         isActive={
                           isHasProduct || addOrderItemIsLoading ? false : true
                         }

@@ -20,15 +20,19 @@ import React from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onEditCustomer: (customerId: number) => void;
-  onChooseCustomer?: (customerId: number, customerName: string) => void;
+  onSpectingOrder: (orderId: number) => void;
+  onUpdateOrder: (orderId: number) => void;
+  onMakeBill: (orderId: number) => void;
+  onCancelOrder: (orderId: number) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onEditCustomer,
-  onChooseCustomer,
+  onSpectingOrder,
+  onUpdateOrder,
+  onMakeBill,
+  onCancelOrder,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -42,11 +46,17 @@ export function DataTable<TData, TValue>({
       sorting,
     },
     meta: {
-      onOpenEditCustomer: (customerId: number) => {
-        onEditCustomer(customerId);
+      onOpenSpectingSellingOrder: (orderId: number) => {
+        onSpectingOrder(orderId);
       },
-      onChooseCustomer: (customerId: number, customerName: string) => {
-        onChooseCustomer && onChooseCustomer(customerId, customerName);
+      onOpenUpdateSellingOrder(orderId: number) {
+        onUpdateOrder(orderId);
+      },
+      onOpenMakeSellingBill(orderId) {
+        onMakeBill(orderId);
+      },
+      onOpenCancelSellingOrder(orderId) {
+        onCancelOrder(orderId);
       },
     },
   });

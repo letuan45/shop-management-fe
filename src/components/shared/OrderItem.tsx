@@ -17,7 +17,8 @@ interface IOrderItem {
   quantity: number;
   image: string;
   detailId?: number;
-  importPrice: number;
+  importPrice?: number;
+  exportPrice?: number;
 }
 
 interface Props {
@@ -91,7 +92,7 @@ const OrderItem = ({
         <img
           src={item.image}
           alt={item.name}
-          className="h-full w-11 rounded-bl-xl rounded-tl-xl"
+          className="h-full w-11 rounded-bl-xl rounded-tl-xl object-cover"
         />
         <div className="flex w-full justify-between p-2">
           <div className="flex flex-col justify-between">
@@ -149,7 +150,10 @@ const OrderItem = ({
               />
             </button>
             <span className="text-sm">
-              Đơn giá: {currencyFormat(item.importPrice)}VND
+              {item.importPrice &&
+                `Đơn giá: ${currencyFormat(item.importPrice)}VND`}
+              {item.exportPrice &&
+                `Đơn giá: ${currencyFormat(item.exportPrice)}VND`}
             </span>
           </div>
         </div>

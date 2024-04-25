@@ -69,7 +69,7 @@ const NAVIGATION_LINKS = [
         bigIcon: <BookmarkIcon width={18} height={18} />,
 
         name: "Giao dịch",
-        link: "/order",
+        link: "/transaction",
       },
     ],
   },

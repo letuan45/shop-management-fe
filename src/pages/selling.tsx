@@ -1,6 +1,9 @@
+import ChooseCustomerDialog from "@/components/sellingDialogs/ChooseCustomerDialog";
+import UpdateSellingOrderDialog from "@/components/sellingDialogs/UpdateSellingOrderDialog";
 import CustomBreadcrumb from "@/components/shared/CustomBreadcrumb";
 import CustomPagination from "@/components/shared/CustomPagination";
 import EmptyData from "@/components/shared/EmptyData";
+import LoadingIndicator from "@/components/shared/LoadingIndicator";
 import SearchBar from "@/components/shared/SearchBar";
 import SellingCartItem from "@/components/shared/SellingCartItem";
 import SellingProductItem from "@/components/shared/SellingProductItem";
@@ -14,13 +17,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/components/ui/use-toast";
 import { ICart, ICartItem } from "@/interfaces/cart";
 import { IProduct } from "@/interfaces/product";
 import { currencyFormat } from "@/lib/utils";
 import { getCart } from "@/services/cartService";
 import { getAllProduct } from "@/services/productService";
+import { createSellingOrder } from "@/services/sellingService";
 import { BackpackIcon } from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const BREADCRUMB_ITEMS = [
@@ -47,6 +53,7 @@ const checkActive = (product: IProduct, cart: ICart | undefined) => {
 };
 
 const Selling = () => {
+  const [isOpenChooseCustomer, setIsOpenChooseCustomer] = useState(false);
   const {
     data: cartData,
     isLoading: cartIsLoading,
@@ -59,6 +66,15 @@ const Selling = () => {
   const page = searchParams.get("page");
   const search = searchParams.get("search");
 
+  const [updateOrderIsOpen, setUpdateOrderIsOpen] = useState(false);
+  const [updateOrderId, setUpdateOrderId] = useState(0);
+
+  // FOR TESTING
+  useEffect(() => {
+    setUpdateOrderId(1);
+    setUpdateOrderIsOpen(true);
+  }, []);
+
   const {
     data: productsData,
     isError: productsIsError,
@@ -69,6 +85,23 @@ const Selling = () => {
       getAllProduct({ signal, page, search, pageSize: 8, isForSell: true }),
   });
 
+  const { mutate: createOrderAction, isPending: createOrderIsPending } =
+    useMutation({
+      mutationKey: ["create-selling-order"],
+      mutationFn: createSellingOrder,
+      onSuccess(data) {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Tạo đơn mua hàng thành công",
+          variant: "success",
+        });
+        const { id: orderId } = data;
+        setUpdateOrderIsOpen(true);
+        setUpdateOrderId(orderId);
+        setIsOpenChooseCustomer(false);
+      },
+    });
+
   let total = 0;
   if (cartData) {
     total = cartData.cartItems.reduce(
@@ -77,8 +110,22 @@ const Selling = () => {
     );
   }
 
+  const createOrderWithCustomerHandler = (customerId: number) => {
+    createOrderAction({ customerId });
+  };
+
+  const createOrderHandler = () => {
+    createOrderAction({ customerId: 0 });
+  };
+
   return (
     <section>
+      {/* Update selling order dialog */}
+      <UpdateSellingOrderDialog
+        orderId={updateOrderId}
+        open={updateOrderIsOpen}
+        onOpenChange={setUpdateOrderIsOpen}
+      />
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center font-semibold">
           <BackpackIcon
@@ -167,7 +214,7 @@ const Selling = () => {
               <p className="text-center text-sm">Giỏ hàng trống</p>
             )}
             {!cartIsLoading && cartData && (
-              <ul className="flex h-[34rem] flex-col gap-2 overflow-y-auto">
+              <ul className="flex h-[28rem] flex-col gap-2 overflow-y-auto">
                 {cartData.cartItems
                   .sort((a, b) => a.id - b.id)
                   .map((item: ICartItem) => (
@@ -182,7 +229,20 @@ const Selling = () => {
             <p className="text-md font-semibold text-yellow-500">
               Tổng tiền: {currencyFormat(total)} VND
             </p>
-            <Button className="w-full">Tạo đơn hàng</Button>
+            <p className=" text-center text-sm italic">Tạo đơn bán hàng</p>
+            <ChooseCustomerDialog
+              isLoading={createOrderIsPending}
+              onChoosenCustomer={createOrderWithCustomerHandler}
+              open={isOpenChooseCustomer}
+              onOpenChange={setIsOpenChooseCustomer}
+            />
+            <Button className="w-full" onClick={createOrderHandler}>
+              {createOrderIsPending ? (
+                <LoadingIndicator />
+              ) : (
+                "Tạo đơn hàng với khách hàng lẻ"
+              )}
+            </Button>
           </CardFooter>
         </Card>
       </div>

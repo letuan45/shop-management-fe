@@ -22,12 +22,18 @@ interface Props {
     quantity: number,
     name: string,
     image: string,
-    importPrice: number,
+    price: number,
   ) => void;
   isActive: boolean;
+  isForSell?: boolean;
 }
 
-const ProductReceiptItem = ({ item, onChooseItem, isActive }: Props) => {
+const ProductOrderItem = ({
+  item,
+  onChooseItem,
+  isActive,
+  isForSell,
+}: Props) => {
   const [quantity, setQuantity] = useState(1);
 
   const chooseItemHandler = (
@@ -35,9 +41,9 @@ const ProductReceiptItem = ({ item, onChooseItem, isActive }: Props) => {
     quantity: number,
     name: string,
     image: string,
-    importPrice: number,
+    price: number,
   ) => {
-    onChooseItem(productId, quantity, name, image, importPrice);
+    onChooseItem(productId, quantity, name, image, price);
   };
 
   const plusOneQty = () => {
@@ -80,12 +86,13 @@ const ProductReceiptItem = ({ item, onChooseItem, isActive }: Props) => {
             <Button
               className={`px-3 ${!isActive ? "cursor-not-allowed !bg-slate-500 opacity-75" : ""}`}
               onClick={() => {
+                const price = isForSell ? item.exportPrice : item.importPrice;
                 chooseItemHandler(
                   item.id,
                   quantity,
                   item.name,
                   item.image,
-                  item.importPrice,
+                  price,
                 );
               }}
             >
@@ -96,9 +103,14 @@ const ProductReceiptItem = ({ item, onChooseItem, isActive }: Props) => {
       </HoverCardTrigger>
       <HoverCardContent className="w-56">
         <div className="text-sm font-semibold">
-          Giá nhập:
+          {isForSell ? "Giá bán: " : "Giá nhập: "}
           <span className="ml-1 text-primary">
-            {currencyFormat(item.importPrice)} VND
+            {item.importPrice &&
+              !isForSell &&
+              `${currencyFormat(item.importPrice)}VND`}
+            {item.exportPrice &&
+              isForSell &&
+              `${currencyFormat(item.exportPrice)}VND`}
           </span>
         </div>
       </HoverCardContent>
@@ -106,4 +118,4 @@ const ProductReceiptItem = ({ item, onChooseItem, isActive }: Props) => {
   );
 };
 
-export default ProductReceiptItem;
+export default ProductOrderItem;
