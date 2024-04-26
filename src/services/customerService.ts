@@ -6,6 +6,37 @@ const GET_CUSTOMERS_URL = "customer";
 const CREATE_CUSTOIMER_URL = "customer/create";
 const GET_CUSTOMER_URL = "customer";
 const UPDATE_CUSTOMER_URL = "customer";
+const GET_ALL_CUSTOMER = "customer/get-all";
+
+export const getAllCustomer = async ({
+  signal,
+}: {
+  signal: AbortSignal;
+}): Promise<ICustomer[]> => {
+  try {
+    const response: AxiosResponse<ICustomer[]> = await axiosInstance({
+      method: "GET",
+      url: GET_ALL_CUSTOMER,
+      signal: signal,
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          `API request failed with status ${error.response.status}`,
+        );
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
 
 export const getCustomers = async (getParams: {
   signal: AbortSignal;

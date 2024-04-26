@@ -10,13 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
-import { Badge } from "@/components/ui/badge";
 import { dateFormat } from "@/lib/utils";
 import { IEmployee } from "@/interfaces/employee";
-import { ISellingOrder } from "@/interfaces/selling";
+import { ISellingBill } from "@/interfaces/selling";
 import { ICustomer } from "@/interfaces/customer";
 
-export const columns: ColumnDef<ISellingOrder>[] = [
+export const columns: ColumnDef<ISellingBill>[] = [
   {
     accessorKey: "id",
     header: "#Mã đơn",
@@ -48,23 +47,36 @@ export const columns: ColumnDef<ISellingOrder>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: "Tình trạng",
+    accessorKey: "totalPayment",
+    header: "Tổng giá",
     cell: ({ row }) => {
-      const status = Number(row.getValue("status"));
-      if (status === 0) {
-        return <Badge variant="secondary">Đã tạo</Badge>;
-      } else if (status === 1) {
-        return <Badge>Đã xác nhận</Badge>;
-      }
-      return <Badge variant="destructive">Đã hủy</Badge>;
+      const amount = parseFloat(row.getValue("totalPayment"));
+      const formatted = new Intl.NumberFormat("vn-VN", {
+        style: "currency",
+        currency: "VND",
+      }).format(amount);
+
+      return <div>{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: "discount",
+    header: "Giảm giá",
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("discount"));
+      const formatted = new Intl.NumberFormat("vn-VN", {
+        style: "currency",
+        currency: "VND",
+      }).format(amount);
+
+      return <div>{formatted}</div>;
     },
   },
   {
     header: "Action",
     id: "actions",
     cell: ({ row, table }) => {
-      const sellingOrder = row.original;
+      const bill = row.original;
 
       return (
         <DropdownMenu>
@@ -76,44 +88,16 @@ export const columns: ColumnDef<ISellingOrder>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer"
               onClick={() => {
-                table.options.meta?.onOpenSpectingSellingOrder &&
-                  table.options.meta?.onOpenSpectingSellingOrder(
-                    sellingOrder.id,
-                  );
+                table.options.meta?.onOpenSpectingSellingBill &&
+                  table.options.meta?.onOpenSpectingSellingBill(bill.id);
               }}
             >
               Chi tiết
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {sellingOrder.status === 0 && (
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => {
-                  table.options.meta?.onOpenUpdateSellingOrder &&
-                    table.options.meta?.onOpenUpdateSellingOrder(
-                      sellingOrder.id,
-                    );
-                }}
-              >
-                Sửa đơn hàng
-              </DropdownMenuItem>
-            )}
-            {sellingOrder.status === 0 && (
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => {
-                  table.options.meta?.onOpenCancelSellingOrder &&
-                    table.options.meta?.onOpenCancelSellingOrder(
-                      sellingOrder.id,
-                    );
-                }}
-              >
-                Hủy đơn
-              </DropdownMenuItem>
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );

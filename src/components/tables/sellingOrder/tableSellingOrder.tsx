@@ -7,7 +7,7 @@ interface Props {
   tableData: ISellingOrder[];
   onSpectingSellingOrder: (orderId: number) => void;
   onUpdateSellingOrder: (orderId: number) => void;
-  onMakeBill: (orderId: number) => void;
+  onMakeBill?: (orderId: number) => void;
   onCancelOrder: (orderId: number) => void;
 }
 
@@ -29,7 +29,7 @@ const TableSellingOrder = (props: Props) => {
           props.onCancelOrder(orderId);
         }}
         onMakeBill={(orderId: number) => {
-          props.onMakeBill(orderId);
+          props.onMakeBill && props.onMakeBill(orderId);
         }}
         onSpectingOrder={(orderId: number) => {
           props.onSpectingSellingOrder(orderId);

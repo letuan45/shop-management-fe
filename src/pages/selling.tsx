@@ -5,6 +5,7 @@ import CustomPagination from "@/components/shared/CustomPagination";
 import EmptyData from "@/components/shared/EmptyData";
 import LoadingIndicator from "@/components/shared/LoadingIndicator";
 import SearchBar from "@/components/shared/SearchBar";
+import SellingBillDetailDialog from "@/components/shared/SellingBillDetailDialog";
 import SellingCartItem from "@/components/shared/SellingCartItem";
 import SellingProductItem from "@/components/shared/SellingProductItem";
 import { Button } from "@/components/ui/button";
@@ -20,13 +21,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
 import { ICart, ICartItem } from "@/interfaces/cart";
 import { IProduct } from "@/interfaces/product";
-import { currencyFormat } from "@/lib/utils";
+import { currencyFormat, queryClient } from "@/lib/utils";
 import { getCart } from "@/services/cartService";
 import { getAllProduct } from "@/services/productService";
-import { createSellingOrder } from "@/services/sellingService";
+import { createSellingOrder, makeBill } from "@/services/sellingService";
 import { BackpackIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const BREADCRUMB_ITEMS = [
@@ -68,12 +69,8 @@ const Selling = () => {
 
   const [updateOrderIsOpen, setUpdateOrderIsOpen] = useState(false);
   const [updateOrderId, setUpdateOrderId] = useState(0);
-
-  // FOR TESTING
-  useEffect(() => {
-    setUpdateOrderId(1);
-    setUpdateOrderIsOpen(true);
-  }, []);
+  const [spectingBillIsOpen, setSpectingBillIsOpen] = useState(false);
+  const [spectingBillId, setSpectingBillId] = useState(0);
 
   const {
     data: productsData,
@@ -99,8 +96,40 @@ const Selling = () => {
         setUpdateOrderIsOpen(true);
         setUpdateOrderId(orderId);
         setIsOpenChooseCustomer(false);
+        queryClient.invalidateQueries({ queryKey: ["get-cart"] });
+      },
+      onError: (error) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: error.message,
+          variant: "destructive",
+        });
       },
     });
+
+  const { mutate: makeBillAction, isPending: makeBillIsPending } = useMutation({
+    mutationKey: ["make-bill"],
+    mutationFn: makeBill,
+    onSuccess: (data) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Lập hóa đơn bán hàng thành công",
+        variant: "success",
+      });
+
+      setUpdateOrderIsOpen(false);
+      setSpectingBillIsOpen(true);
+      setSpectingBillId(data.id);
+      queryClient.invalidateQueries({ queryKey: ["selling-products"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   let total = 0;
   if (cartData) {
@@ -118,10 +147,22 @@ const Selling = () => {
     createOrderAction({ customerId: 0 });
   };
 
+  const makeBillHandler = (orderId: number, customerPayment: number) => {
+    makeBillAction({ orderId, customerPayment });
+  };
+
   return (
     <section>
+      {/* Specting bill */}
+      <SellingBillDetailDialog
+        isOpen={spectingBillIsOpen}
+        setIsOpen={setSpectingBillIsOpen}
+        billId={spectingBillId}
+      />
       {/* Update selling order dialog */}
       <UpdateSellingOrderDialog
+        isLoading={makeBillIsPending}
+        onMakeBill={makeBillHandler}
         orderId={updateOrderId}
         open={updateOrderIsOpen}
         onOpenChange={setUpdateOrderIsOpen}

@@ -11,6 +11,15 @@ export interface ISellingOrderDetail {
   product: IProduct;
 }
 
+export interface ISellingBillDetail {
+  id: number;
+  productId: number;
+  sellingOrderId: number;
+  quantity: number;
+  price: number;
+  product: IProduct;
+}
+
 export interface ISellingOrder {
   id: number;
   employeeId: number;
@@ -23,5 +32,24 @@ export interface ISellingOrder {
 }
 
 export interface ISellingOrderFull extends ISellingOrder {
+  discount: number;
   sellingOrderDetails: ISellingOrderDetail[];
+}
+
+export interface ISellingBill {
+  id: number;
+  employeeId: number;
+  customerId: number;
+  createAt: string;
+  updateAt: string;
+  customer: ICustomer;
+  employee: IEmployee;
+  discount: number;
+}
+
+export interface ISellingBillFull extends ISellingBill {
+  customerPayment: number;
+  discount: number;
+  totalPayment: number;
+  sellingBillDetails: ISellingBillDetail[];
 }
