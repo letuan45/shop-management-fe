@@ -46,9 +46,7 @@ export const getSuppliers = async (getParams: {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -74,9 +72,7 @@ export const getAllSupplier = async (getParams: {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }

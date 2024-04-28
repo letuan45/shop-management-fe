@@ -9,15 +9,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { loginSchema } from "@/lib/utils/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { Link, useNavigate } from "react-router-dom";
 import Logo from "@/components/shared/Logo";
-import { PasswordInput } from "@/components/shared/PasswordInput";
-import { Checkbox } from "@/components/ui/checkbox";
 import CityImage from "../../assets/images/city.jpg";
 import {
   Carousel,
@@ -28,12 +24,12 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import ToggleThemeButton from "@/components/shared/ToggleThemeButton";
-import { useToast } from "@/components/ui/use-toast";
-import { ILogin, ILoginResult } from "@/interfaces/auth";
-import { useMutation } from "@tanstack/react-query";
-import { login } from "@/services/authService";
 import Gitbutton from "@/components/shared/Gitbutton";
-import { useLogin } from "@/hooks/useLogin";
+import { ForgotPasswordSchema } from "@/lib/utils/schemas/forgotPwdSchema";
+import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { resetPassword } from "@/services/authService";
+import { toast } from "@/components/ui/use-toast";
 
 const CarouselItems = [
   {
@@ -68,49 +64,39 @@ const CarouselItems = [
   },
 ];
 
-const Login = () => {
-  const { toast } = useToast();
-  const { loginAction } = useLogin();
-  const navigate = useNavigate();
+const ForgotPassword = () => {
+  const { mutate: resetPassAction, isPending: resetPassIsPending } =
+    useMutation({
+      mutationKey: ["reset-password"],
+      mutationFn: resetPassword,
+      onSuccess: (data) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: data.message,
+          variant: "success",
+        });
+      },
+      onError: (error) => {
+        console.log(error);
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Thất bại, hãy kiểm tra lại thông tin!",
+          variant: "destructive",
+        });
+      },
+    });
 
-  const { mutate, isPending } = useMutation({
-    mutationKey: ["login"],
-    mutationFn: login,
-    onSuccess: (data: ILoginResult) => {
-      toast({
-        title: "Thông báo: xác thực",
-        description: "Đăng nhập thành công!",
-        variant: "success",
-      });
-
-      const { accessToken, refreshToken } = data;
-      loginAction(accessToken, refreshToken);
-
-      navigate("/home");
-    },
-    onError: () => {
-      toast({
-        title: "Thông báo: xác thực",
-        description: "Tài khoản hoặc mật khẩu không chính xác!",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
+    resolver: zodResolver(ForgotPasswordSchema),
     defaultValues: {
-      username: "tuan1",
-      password: "123456",
+      username: "",
+      email: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginSchema>) {
-    const credentials: ILogin = {
-      username: values.username,
-      password: values.password,
-    };
-    mutate(credentials);
+  function onSubmit(values: z.infer<typeof ForgotPasswordSchema>) {
+    const { email, username } = values;
+    resetPassAction({ email, username });
   }
 
   return (
@@ -164,9 +150,9 @@ const Login = () => {
                 </h2>
                 <p className="text-sm font-normal">Phần mềm quản lý bán hàng</p>
               </div>
-              <h3 className="text-xl font-semibold">Đăng nhập</h3>
+              <h3 className="text-xl font-semibold">Quên mật khẩu</h3>
               <p className="mt-2 text-sm font-normal">
-                Chào mừng bạn trở lại 👋
+                Hãy cung cấp tên tài khoản và email của bạn
               </p>
               <FormField
                 control={form.control}
@@ -188,15 +174,15 @@ const Login = () => {
               />
               <FormField
                 control={form.control}
-                name="password"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel></FormLabel>
                     <FormControl>
-                      <PasswordInput
-                        id="password"
-                        placeholder="Mật khẩu"
+                      <Input
+                        placeholder="Địa chỉ email"
                         {...field}
+                        id="email"
                       />
                     </FormControl>
                     <FormDescription />
@@ -204,30 +190,18 @@ const Login = () => {
                   </FormItem>
                 )}
               />
-              <div className="my-2 flex justify-between">
-                <div className="flex items-center">
-                  <Checkbox id="remember-password" />
-                  <label
-                    htmlFor="remember-password"
-                    className="ml-1 select-none text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Duy trì đăng nhập
-                  </label>
-                </div>
-                <Link
-                  to="/forgot-password"
-                  className="ml-10 text-sm text-violet-500"
-                >
-                  Quên mật khẩu?
-                </Link>
-              </div>
-              <Button type="submit" className="mt-4 w-full">
-                {isPending ? (
+              <Button type="submit" className="mb-3 mt-4 w-full">
+                {resetPassIsPending ? (
                   <ReloadIcon className="animate-spin" />
                 ) : (
                   "Xác nhận"
                 )}
               </Button>
+              <Link to="/login" className="block">
+                <Button className="w-full" variant="secondary">
+                  Quay về đăng nhập
+                </Button>
+              </Link>
             </form>
           </Form>
           <div className="flex justify-between">
@@ -268,4 +242,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

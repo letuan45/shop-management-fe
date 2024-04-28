@@ -8,6 +8,8 @@ const GET_USER_URL = "user";
 const GET_ROLE_URL = "user/roles";
 const REGISTER_URL = "user/register";
 const UPDATE_USER_URL = "user/update";
+const RESET_PASS_URL = "user/reset-password";
+const CONFIRM_RESET_PASS_URL = "user/confirm-reset-password";
 
 export const login = async (credentials: ILogin): Promise<ILoginResult> => {
   try {
@@ -21,9 +23,7 @@ export const login = async (credentials: ILogin): Promise<ILoginResult> => {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -50,9 +50,7 @@ export const logout = async (userId: number) => {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -79,9 +77,7 @@ export const getAccount = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -109,9 +105,7 @@ export const getAllRoles = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -147,9 +141,7 @@ export const register = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -187,9 +179,69 @@ export const updateUser = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+interface IResetPassword {
+  username: string;
+  email: string;
+}
+export const resetPassword = async ({
+  username,
+  email,
+}: IResetPassword): Promise<{ message: string }> => {
+  try {
+    const response: AxiosResponse<{ message: string }> = await axiosInstance({
+      method: "POST",
+      url: RESET_PASS_URL,
+      data: { username, email },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error("API request failed: request could not be sent");
+      }
+    } else {
+      throw new Error(
+        "An unexpected error occurred while making the API request",
+      );
+    }
+  }
+};
+
+interface IConfirmResetPassword {
+  newPassword: string;
+  resetToken: string;
+}
+export const confirmResetPassword = async ({
+  newPassword,
+  resetToken,
+}: IConfirmResetPassword): Promise<{ message: string }> => {
+  try {
+    const response: AxiosResponse<{ message: string }> = await axiosInstance({
+      method: "POST",
+      url: CONFIRM_RESET_PASS_URL,
+      data: { newPassword, resetToken },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }

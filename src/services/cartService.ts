@@ -24,9 +24,7 @@ export const getCart = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -53,9 +51,7 @@ export const addToCart = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -83,9 +79,7 @@ export const plusCartByOne = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -113,9 +107,7 @@ export const minusCartByOne = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -142,9 +134,7 @@ export const updateCartQuantity = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -171,9 +161,7 @@ export const removeCartItem = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }

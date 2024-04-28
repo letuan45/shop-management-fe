@@ -58,9 +58,7 @@ export const getAllProduct = async (getParams: {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -84,9 +82,7 @@ export const createProduct = async (formData: FormData): Promise<IProduct> => {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -112,9 +108,7 @@ export const getAllCategory = async (getParams: {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -144,9 +138,7 @@ export const createCategory = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -180,9 +172,7 @@ export const getProduct = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }

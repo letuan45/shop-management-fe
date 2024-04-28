@@ -60,9 +60,7 @@ export const getAllSellingOrder = async (getParams: {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -118,9 +116,7 @@ export const getAllSellingBill = async (getParams: {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -150,9 +146,7 @@ export const getSellingBill = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -180,9 +174,7 @@ export const createSellingOrder = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -212,9 +204,7 @@ export const getSellingOrder = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -248,9 +238,7 @@ export const addOrderItem = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -278,9 +266,7 @@ export const plusOneQtySellingOrder = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -308,9 +294,7 @@ export const minusOneQtySellingOrder = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -340,9 +324,7 @@ export const updateQtySellingOrder = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -370,9 +352,7 @@ export const removeOrderItem = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -402,9 +382,7 @@ export const changeCustomer = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -434,9 +412,7 @@ export const makeBill = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }
@@ -464,9 +440,7 @@ export const cancelSellingOrder = async ({
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response) {
-        throw new Error(
-          `API request failed with status ${error.response.status}`,
-        );
+        throw new Error(error.response.data.message);
       } else {
         throw new Error("API request failed: request could not be sent");
       }

@@ -23,6 +23,8 @@ import Selling from "./pages/selling";
 import Transaction from "./pages/transaction";
 import PrivateRoutes from "./routes/PrivateRoute";
 import AdminRoute from "./routes/AdminRoute";
+import ForgotPassword from "./pages/auth/forgot-password";
+import ConfirmPassword from "./pages/auth/confirm-password";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,14 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password/:resetPwToken",
+    element: <ConfirmPassword />,
   },
   {
     path: "/",
