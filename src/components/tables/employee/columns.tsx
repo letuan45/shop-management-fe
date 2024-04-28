@@ -75,11 +75,28 @@ export const columns: ColumnDef<IEmployee>[] = [
     },
   },
   {
+    accessorKey: "user",
+    header: "Có tài khoản",
+    cell: ({ row }) => {
+      if (!row.getValue("user")) {
+        return (
+          <div className="flex justify-center">
+            <Cross2Icon />
+          </div>
+        );
+      }
+      return (
+        <div className="flex justify-center">
+          <CheckIcon className="text-violet-500" width={20} height={20} />
+        </div>
+      );
+    },
+  },
+  {
     header: "Action",
     id: "actions",
     cell: ({ row, table }) => {
       const employee = row.original;
-      console.log();
 
       return (
         <DropdownMenu>
@@ -95,7 +112,16 @@ export const columns: ColumnDef<IEmployee>[] = [
               Tra cứu giao dịch
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => {
+                table.options.meta?.onOpenUserManager &&
+                  table.options.meta?.onOpenUserManager(
+                    employee.id,
+                    employee.user?.id,
+                  );
+              }}
+            >
               Quản lý tài khoản
             </DropdownMenuItem>
             <DropdownMenuItem

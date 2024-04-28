@@ -1,7 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  Navigate,
+  RouterProvider,
+  createBrowserRouter,
+} from "react-router-dom";
 import Login from "./pages/auth/login";
 import { ThemeProvider } from "./context/ThemeProvider";
 import { Toaster } from "./components/ui/toaster";
@@ -17,75 +21,93 @@ import Supplier from "./pages/supplier";
 import Customer from "./pages/customer";
 import Selling from "./pages/selling";
 import Transaction from "./pages/transaction";
+import PrivateRoutes from "./routes/PrivateRoute";
+import AdminRoute from "./routes/AdminRoute";
 
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <Navigate to="/login" replace />,
+  },
+  {
+    path: "/login",
     element: <Login />,
   },
   {
-    path: "/home",
-    element: (
-      <Layout>
-        <Home />
-      </Layout>
-    ),
-  },
-  {
-    path: "/employee",
-    element: (
-      <Layout>
-        <Employee />
-      </Layout>
-    ),
-  },
-  {
-    path: "/product",
-    element: (
-      <Layout>
-        <Product />
-      </Layout>
-    ),
-  },
-  {
-    path: "/receipt",
-    element: (
-      <Layout>
-        <Receipt />
-      </Layout>
-    ),
-  },
-  {
-    path: "/supplier",
-    element: (
-      <Layout>
-        <Supplier />
-      </Layout>
-    ),
-  },
-  {
-    path: "/customer",
-    element: (
-      <Layout>
-        <Customer />
-      </Layout>
-    ),
-  },
-  {
-    path: "/selling",
-    element: (
-      <Layout>
-        <Selling />
-      </Layout>
-    ),
-  },
-  {
-    path: "/transaction",
-    element: (
-      <Layout>
-        <Transaction />
-      </Layout>
-    ),
+    path: "/",
+    element: <PrivateRoutes />,
+    children: [
+      {
+        path: "/",
+        element: <AdminRoute />,
+        children: [
+          {
+            path: "/employee",
+            element: (
+              <Layout>
+                <Employee />
+              </Layout>
+            ),
+          },
+          {
+            path: "/product",
+            element: (
+              <Layout>
+                <Product />
+              </Layout>
+            ),
+          },
+          {
+            path: "/receipt",
+            element: (
+              <Layout>
+                <Receipt />
+              </Layout>
+            ),
+          },
+          {
+            path: "/supplier",
+            element: (
+              <Layout>
+                <Supplier />
+              </Layout>
+            ),
+          },
+        ],
+      },
+      {
+        path: "/home",
+        element: (
+          <Layout>
+            <Home />
+          </Layout>
+        ),
+      },
+      {
+        path: "/customer",
+        element: (
+          <Layout>
+            <Customer />
+          </Layout>
+        ),
+      },
+      {
+        path: "/selling",
+        element: (
+          <Layout>
+            <Selling />
+          </Layout>
+        ),
+      },
+      {
+        path: "/transaction",
+        element: (
+          <Layout>
+            <Transaction />
+          </Layout>
+        ),
+      },
+    ],
   },
 ]);
 

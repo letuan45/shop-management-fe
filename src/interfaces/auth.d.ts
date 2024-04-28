@@ -32,3 +32,16 @@ export interface IJWTTokenPayload {
   roleId: number;
   username: string;
 }
+
+export interface IRole {
+  id: number;
+  name: string;
+}
+
+export interface IUser {
+  id: number;
+  username: string;
+  isActive: boolean;
+  employeeId: number;
+  role: IRole;
+}

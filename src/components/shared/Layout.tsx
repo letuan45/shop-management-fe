@@ -36,7 +36,7 @@ import {
 } from "../ui/dropdown-menu";
 import { useLogout } from "@/hooks/useLogout";
 
-const NAVIGATION_LINKS = [
+const ADMIN_NAVIGATION_LINKS = [
   {
     id: 1,
     cateName: "CHUNG",
@@ -109,10 +109,54 @@ const NAVIGATION_LINKS = [
   },
 ];
 
+const EMPLOYEE_NAVIGATION_LINKS = [
+  {
+    id: 1,
+    cateName: "CHUNG",
+    links: [
+      {
+        id: 1,
+        icon: <HomeIcon />,
+        bigIcon: <HomeIcon width={18} height={18} />,
+        name: "Trang chủ",
+        link: "/home",
+      },
+      {
+        id: 2,
+        icon: <BackpackIcon />,
+        bigIcon: <BackpackIcon width={18} height={18} />,
+        name: "Bán hàng",
+        link: "/selling",
+      },
+      {
+        id: 3,
+        icon: <StarIcon />,
+        bigIcon: <StarIcon width={18} height={18} />,
+
+        name: "Khách hàng",
+        link: "/customer",
+      },
+      {
+        id: 4,
+        icon: <BookmarkIcon />,
+        bigIcon: <BookmarkIcon width={18} height={18} />,
+
+        name: "Giao dịch",
+        link: "/transaction",
+      },
+    ],
+  },
+];
+
 const Layout = (props: { children: JSX.Element }) => {
   const [user, setUser] = useRecoilState(userAtom);
   const [sidebarIsExpansed, setSidebarIsExpansed] = useState(true);
   const { logoutAction, isPending } = useLogout();
+
+  const { roleId } = user;
+
+  const sideBarLinks =
+    roleId === 2 ? ADMIN_NAVIGATION_LINKS : EMPLOYEE_NAVIGATION_LINKS;
 
   useEffect(() => {
     if (user.id === 0) {
@@ -165,7 +209,7 @@ const Layout = (props: { children: JSX.Element }) => {
         <nav className="p-4">
           {!sidebarIsExpansed && (
             <ul>
-              {NAVIGATION_LINKS.map((outerItem) => {
+              {sideBarLinks.map((outerItem) => {
                 return (
                   <div key={outerItem.id} className="my-3">
                     <h3 className="text-center text-sm text-gray-400">
@@ -207,7 +251,7 @@ const Layout = (props: { children: JSX.Element }) => {
           )}
           {sidebarIsExpansed && (
             <ul>
-              {NAVIGATION_LINKS.map((outerItem) => {
+              {sideBarLinks.map((outerItem) => {
                 return (
                   <div key={outerItem.id} className="my-3">
                     <h3 className="text-sm text-gray-400">
@@ -244,9 +288,16 @@ const Layout = (props: { children: JSX.Element }) => {
         <div className="flex h-16 items-center justify-between px-8 py-4 text-sm shadow-lg dark:bg-slate-950">
           <div>
             Tài khoản{" "}
-            <span className="rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 text-xs font-semibold text-white">
-              ADMIN
-            </span>
+            {roleId === 2 && (
+              <span className="rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 text-xs font-semibold text-white">
+                Quản trị
+              </span>
+            )}
+            {roleId === 1 && (
+              <span className="rounded-md bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-1 text-xs font-semibold text-white">
+                Nhân viên
+              </span>
+            )}
           </div>
           <div className="flex items-center">
             <Gitbutton />

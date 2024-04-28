@@ -1,3 +1,9 @@
+export interface IUser {
+  username: string;
+  id: number;
+  isActive: boolean;
+}
+
 export interface IEmployee {
   id: number;
   fullName: number;
@@ -7,4 +13,5 @@ export interface IEmployee {
   dateOfBirth: string;
   address: string;
   image: string;
+  user: IUser;
 }

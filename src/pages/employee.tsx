@@ -4,6 +4,7 @@ import CustomPagination from "@/components/shared/CustomPagination";
 import EmptyData from "@/components/shared/EmptyData";
 import LoadingIndicator from "@/components/shared/LoadingIndicator";
 import SearchBar from "@/components/shared/SearchBar";
+import UserManagerDialog from "@/components/shared/UserManagerDialog";
 import TableEmployee from "@/components/tables/employee/tableEmployee";
 import {
   Card,
@@ -24,6 +25,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
 import { queryClient } from "@/lib/utils";
+import { register, updateUser } from "@/services/authService";
 import {
   createEmployee,
   editEmployee,
@@ -53,11 +55,18 @@ const Employee = () => {
   const [createDialogIsOpen, setCreateDialogIsOpen] = useState(false);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
   const [editEmployeeId, setEditEmployeeId] = useState(0);
+  const [userManagerIsOpen, setUserManagerIsOpen] = useState(false);
+  const [userManagerUId, setUserManagerUId] = useState(0);
+  const [userManagerEmpId, setUserManagerEmpId] = useState(0);
 
   const page = searchParams.get("page");
   const search = searchParams.get("search");
 
-  const { data, isError, isLoading } = useQuery({
+  const {
+    data: employeesData,
+    isError: employeesIsError,
+    isLoading: employeesIsLoading,
+  } = useQuery({
     queryKey: ["employees", page, search],
     queryFn: ({ signal }) => getAllEmployee({ signal, page, search }),
   });
@@ -112,6 +121,50 @@ const Employee = () => {
     },
   });
 
+  const { mutate: registerAction, isPending: registerIsPending } = useMutation({
+    mutationKey: ["register"],
+    mutationFn: register,
+    onSuccess: () => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: "Tạo tài khoản thành công",
+        variant: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      setUserManagerIsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Thông báo: Thao tác dữ liệu",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { mutate: updateUserAction, isPending: updateUserIsPending } =
+    useMutation({
+      mutationKey: ["update-user"],
+      mutationFn: updateUser,
+      onSuccess: (data) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: "Cập nhật tài khoản thành công",
+          variant: "success",
+        });
+        queryClient.invalidateQueries({ queryKey: ["employees"] });
+        queryClient.invalidateQueries({ queryKey: ["get-user", data.id] });
+        setUserManagerIsOpen(false);
+      },
+      onError: (error) => {
+        toast({
+          title: "Thông báo: Thao tác dữ liệu",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
+
   const createEmployeeHandler = (data: FormData | undefined) => {
     data && createAction(data);
   };
@@ -128,8 +181,44 @@ const Employee = () => {
     setEditEmployeeId(employeeIdPayload);
   };
 
+  const openUserManagerHandler = (employeeId: number, userId: number) => {
+    setUserManagerIsOpen(true);
+    setUserManagerEmpId(employeeId);
+    setUserManagerUId(userId);
+  };
+
+  const registerHanlder = (
+    employeeId: number,
+    roleId: number,
+    username: string,
+    password: string,
+  ) => {
+    registerAction({ employeeId, password, roleId, username });
+  };
+
+  const updateUserHandler = (
+    userId: number,
+    password: string,
+    roleId: number,
+    isActive: boolean,
+    isUpdatePwd: boolean,
+  ) => {
+    updateUserAction({ userId, password, roleId, isActive, isUpdatePwd });
+  };
+
   return (
     <div>
+      {/* User manager */}
+      <UserManagerDialog
+        isOpen={userManagerIsOpen}
+        setIsOpen={setUserManagerIsOpen}
+        userId={userManagerUId}
+        employeeId={userManagerEmpId}
+        updateUserIsLoading={updateUserIsPending}
+        registerIsLoading={registerIsPending}
+        onRegister={registerHanlder}
+        onUpdateUser={updateUserHandler}
+      />
       <div className="flex justify-between">
         <div className="mb-4 flex items-center font-semibold">
           <PersonIcon
@@ -141,7 +230,6 @@ const Employee = () => {
         </div>
         <CustomBreadcrumb items={BREADCRUMB_ITEMS} />
       </div>
-
       <Card className="w-full animate-fadeIn">
         <CardHeader>
           <div className="flex w-full items-center justify-between">
@@ -214,19 +302,20 @@ const Employee = () => {
           </div>
         </CardHeader>
         <CardContent className="h-[22rem] overflow-hidden max-lg:h-[23rem] max-md:h-[24rem]">
-          {isLoading && <LoadingIndicator />}
-          {isError && <EmptyData />}
-          {data && (
+          {employeesIsLoading && <LoadingIndicator />}
+          {employeesIsError && <EmptyData />}
+          {employeesData && employeesData.data.length > 0 && (
             <TableEmployee
-              tableData={data.data}
+              onUserManager={openUserManagerHandler}
+              tableData={employeesData.data}
               onEditEmployee={handleOpenEditEmployeeHandler}
             />
           )}
         </CardContent>
-        {data && Math.ceil(data.total / 5) > 1 && (
+        {employeesData && Math.ceil(employeesData.total / 5) > 1 && (
           <CardFooter className="flex justify-between">
             <CustomPagination
-              totalItem={data.total}
+              totalItem={employeesData.total}
               maxItemPerPage={5}
               pageParam="page"
             />

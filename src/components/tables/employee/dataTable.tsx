@@ -21,12 +21,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onEditEmployee: (emlpoyeeId: number) => void;
+  onUserManager: (employeeId: number, userId: number) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onEditEmployee,
+  onUserManager,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -42,6 +44,9 @@ export function DataTable<TData, TValue>({
     meta: {
       onOpenEditEmployee: (employeeId: number) => {
         onEditEmployee(employeeId);
+      },
+      onOpenUserManager: (employeeId: number, userId: number) => {
+        onUserManager(employeeId, userId);
       },
     },
   });
