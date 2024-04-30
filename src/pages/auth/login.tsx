@@ -88,10 +88,10 @@ const Login = () => {
 
       navigate("/home");
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Thông báo: xác thực",
-        description: "Tài khoản hoặc mật khẩu không chính xác!",
+        description: error.message,
         variant: "destructive",
       });
     },

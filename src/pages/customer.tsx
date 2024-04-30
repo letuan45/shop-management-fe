@@ -35,6 +35,8 @@ import { PlusCircledIcon, StarIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import CityImage from "../assets/images/city.jpg";
+import { Button } from "@/components/ui/button";
 
 const BREADCRUMB_ITEMS = [
   {
@@ -148,10 +150,10 @@ const Customer = () => {
         </div>
         <CustomBreadcrumb items={BREADCRUMB_ITEMS} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="w-full animate-fadeIn grid-cols-1">
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="col-span-2 w-full animate-fadeIn max-2xl:col-span-3">
           <CardHeader>
-            <div className="flex w-full items-center justify-between">
+            <div className="flex w-full items-center justify-between max-sm:flex-col max-sm:gap-3">
               <div>
                 <CardTitle>Danh sách khách hàng</CardTitle>
                 <CardDescription className="mt-1">
@@ -232,6 +234,49 @@ const Customer = () => {
               />
             </CardFooter>
           )}
+        </Card>
+        <Card className="relative col-span-1 animate-fadeIn p-6 max-2xl:hidden">
+          <img
+            src={CityImage}
+            className="h-[420px] w-full rounded-md brightness-50"
+            alt="customer"
+          />
+          <div className="absolute left-0 top-0 z-10 flex h-full flex-col justify-between p-10">
+            <div>
+              <h2 className="font-semibold text-violet-300">
+                Chương trình khách hàng thành viên
+              </h2>
+              <div className="my-2 rounded-md bg-white/30 p-2 text-white backdrop-blur-md">
+                <ul className="text-sm">
+                  <li>
+                    <h5 className="font-semibold text-primary-foreground">
+                      Khách hàng hạng đồng:
+                    </h5>
+                    <p className="italic text-black">
+                      @Điểm tích lũy trên 600 - giảm 1% trên toàn hóa đơn
+                    </p>
+                  </li>
+                  <li>
+                    <h5 className="font-semibold text-primary-foreground">
+                      Khách hàng hạng đồng:
+                    </h5>
+                    <p className="italic text-black">
+                      @Điểm tích lũy trên 1000 - giảm 6% trên toàn hóa đơn
+                    </p>
+                  </li>
+                  <li>
+                    <h5 className="font-semibold text-primary-foreground">
+                      Khách hàng hạng đồng:
+                    </h5>
+                    <p className="italic text-black">
+                      @Điểm tích lũy trên 2000 - giảm 10% trên toàn hóa đơn
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <Button>Liên hệ thay đổi chương trình khuyến mãi</Button>
+          </div>
         </Card>
       </div>
     </section>

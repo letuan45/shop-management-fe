@@ -215,14 +215,14 @@ const Transaction = () => {
       </div>
       <Card className="col-span-2 animate-fadeIn">
         <CardHeader>
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-full items-center justify-between max-lg:flex-col max-lg:gap-2">
             <div>
               <CardTitle>Danh sách đơn bán hàng</CardTitle>
               <CardDescription className="mt-1">
                 Quản lý đơn bán hàng
               </CardDescription>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 max-lg:flex-col">
               <div className="flex items-center">
                 <div className="mr-2 text-nowrap text-sm">Từ ngày: </div>
                 <CustomDatepicker
@@ -268,14 +268,14 @@ const Transaction = () => {
       </Card>
       <Card className="col-span-2 animate-fadeIn">
         <CardHeader>
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-full items-center justify-between max-lg:flex-col max-lg:gap-2">
             <div>
               <CardTitle>Danh sách đơn bán hàng</CardTitle>
               <CardDescription className="mt-1">
                 Quản lý đơn bán hàng
               </CardDescription>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 max-lg:flex-col">
               <div className="flex items-center">
                 <div className="mr-2 text-nowrap text-sm">Từ ngày: </div>
                 <CustomDatepicker

@@ -28,12 +28,7 @@ import {
   getAllReceiptOrder,
   makeReceiptBill,
 } from "@/services/receiptService";
-import {
-  ArchiveIcon,
-  FileTextIcon,
-  Pencil2Icon,
-  ReaderIcon,
-} from "@radix-ui/react-icons";
+import { ArchiveIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -276,7 +271,7 @@ const Receipt = () => {
         <CustomBreadcrumb items={BREADCRUMB_ITEMS} />
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-1 grid animate-fadeIn grid-cols-2 gap-4">
+        {/* <div className="col-span-1 grid animate-fadeIn grid-cols-2 gap-4">
           <Card className="col-span-1 flex w-full p-6">
             <div className="rounded-md bg-purple-400/40 p-4 dark:bg-purple-400/10">
               <div className="rounded-md bg-primary p-2">
@@ -321,18 +316,18 @@ const Receipt = () => {
               <h6 className="text-xl font-bold">1200</h6>
             </div>
           </Card>
-        </div>
-        <Card className="col-span-1 flex w-full animate-fadeIn p-6"></Card>
+        </div> */}
+        {/* <Card className="col-span-1 flex w-full animate-fadeIn p-6"></Card> */}
         <Card className="col-span-2 animate-fadeIn">
           <CardHeader>
-            <div className="flex w-full items-center justify-between">
+            <div className="flex w-full items-center justify-between max-lg:flex-col max-lg:gap-4">
               <div>
                 <CardTitle>Danh sách đơn hàng nhập</CardTitle>
                 <CardDescription className="mt-1">
                   Quản lý đơn hàng nhập
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 max-lg:flex-col">
                 <div className="flex items-center">
                   <div className="mr-2 text-nowrap text-sm">Từ ngày: </div>
                   <CustomDatepicker
@@ -359,7 +354,7 @@ const Receipt = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="h-[19rem] overflow-hidden max-lg:h-[20rem] max-md:h-[21rem]">
+          <CardContent className="h-[19rem] overflow-hidden max-lg:h-[20rem] max-sm:h-[25rem]">
             {receiptOrderIsLoading && <LoadingIndicator />}
             {!receiptOrderIsLoading && receiOrdersIsError && <EmptyData />}
             {!receiptOrderIsLoading && !receiOrdersIsError && receiptOrders && (
@@ -384,14 +379,14 @@ const Receipt = () => {
         </Card>
         <Card className="col-span-2 animate-fadeIn">
           <CardHeader>
-            <div className="flex w-full items-center justify-between">
+            <div className="flex w-full items-center justify-between max-lg:flex-col max-lg:gap-4">
               <div>
                 <CardTitle>Danh sách hóa đơn nhập hàng</CardTitle>
                 <CardDescription className="mt-1">
                   Quản lý hóa đơn nhập hàng
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 max-lg:flex-col">
                 <div className="flex items-center">
                   <div className="mr-2 text-nowrap text-sm">Từ ngày: </div>
                   <CustomDatepicker
@@ -412,7 +407,7 @@ const Receipt = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="h-[19rem] overflow-hidden max-lg:h-[20rem] max-md:h-[21rem]">
+          <CardContent className="h-[19rem] overflow-hidden max-lg:h-[20rem] max-sm:h-[25rem]">
             {receiptBillsIsLoading && <LoadingIndicator />}
             {!receiptBillsIsLoading && receiBillsIsError && <EmptyData />}
             {!receiptBillsIsLoading && !receiBillsIsError && receiptBills && (

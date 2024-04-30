@@ -246,7 +246,7 @@ const Product = () => {
       </div>
       <Card className="w-full animate-fadeIn">
         <CardHeader>
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-full items-center justify-between gap-2 max-sm:flex-col">
             <div>
               <CardTitle>Danh sách sản phẩm</CardTitle>
               <CardDescription className="mt-1">
@@ -321,7 +321,7 @@ const Product = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="h-[35rem] overflow-hidden max-lg:h-[23rem] max-md:h-[24rem]">
+        <CardContent className="h-[35rem] overflow-hidden max-lg:h-[36rem] max-md:h-[36rem]">
           {productsIsLoading && <LoadingIndicator />}
           {productsIsError ||
             (productsData && productsData.total === 0 && <EmptyData />)}
@@ -343,7 +343,7 @@ const Product = () => {
         )}
       </Card>
       <div className="mt-4 grid grid-cols-3 gap-4">
-        <Card className="col-span-1 animate-fadeIn">
+        <Card className="col-span-1 animate-fadeIn max-lg:col-span-2 max-md:col-span-3">
           <CardHeader>
             <div className="flex w-full items-center justify-between">
               <div>

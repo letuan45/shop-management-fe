@@ -176,6 +176,19 @@ const Layout = (props: { children: JSX.Element }) => {
     logoutAction();
   };
 
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 1200) {
+        setSidebarIsExpansed(false);
+      } else {
+        setSidebarIsExpansed(true);
+      }
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const navItemClasses = `rounded-md my-2 block ${sidebarIsExpansed ? "px-4 py-2" : "p-3"} hover:bg-purple-500 hover:rounded-md hover:bg-clip-padding hover:backdrop-filter hover:backdrop-blur-sm hover:bg-opacity-30 ease-in flex items-center duration-100`;
 
   const navItemActiveClasses = `rounded-md my-2 block ${sidebarIsExpansed ? "px-4 py-2" : "p-3"} flex items-center duration-200 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 shadow-md shadow-indigo-500/20`;
@@ -200,7 +213,7 @@ const Layout = (props: { children: JSX.Element }) => {
           <div className="flex items-center justify-center">
             <Logo size="small" />
             <h1
-              className={` ml-2 ${sidebarIsExpansed ? "show" : "hidden"} duration-300`}
+              className={`ml-2 ${sidebarIsExpansed ? "show" : "hidden"} duration-300`}
             >
               Dashboard
             </h1>
@@ -282,7 +295,7 @@ const Layout = (props: { children: JSX.Element }) => {
         </nav>
       </aside>
       <div
-        className={`w-full ${sidebarIsExpansed ? "ml-[220px] w-[calc(100%-220px)]" : "ml-[80px] w-[calc(100%-80px)]"}`}
+        className={`w-full ${sidebarIsExpansed ? "ml-[220px] w-[calc(100%-220px)]" : "ml-[80px] w-[calc(100%-80px)] max-w-[calc(100%-80px)]"}`}
       >
         {/* Header */}
         <div className="flex h-16 items-center justify-between px-8 py-4 text-sm shadow-lg dark:bg-slate-950">
@@ -300,7 +313,9 @@ const Layout = (props: { children: JSX.Element }) => {
             )}
           </div>
           <div className="flex items-center">
-            <Gitbutton />
+            <div className="max-sm:hidden">
+              <Gitbutton />
+            </div>
             <div className="mx-6">
               <ToggleThemeButton />
             </div>

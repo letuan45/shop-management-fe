@@ -150,7 +150,7 @@ const Supplier = () => {
       </div>
       <Card className="w-full animate-fadeIn">
         <CardHeader>
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-full items-center justify-between max-sm:flex-col max-sm:gap-3">
             <div>
               <CardTitle>Danh sách nhà cung cấp</CardTitle>
               <CardDescription className="mt-1">

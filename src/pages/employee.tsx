@@ -301,7 +301,7 @@ const Employee = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="h-[22rem] overflow-hidden max-lg:h-[23rem] max-md:h-[24rem]">
+        <CardContent className="h-[22rem] overflow-hidden max-lg:h-[27rem] max-md:h-[28rem]">
           {employeesIsLoading && <LoadingIndicator />}
           {employeesIsError && <EmptyData />}
           {employeesData && employeesData.data.length > 0 && (

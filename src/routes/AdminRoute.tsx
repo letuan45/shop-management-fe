@@ -9,8 +9,6 @@ const AdminRoute = () => {
     isAdmin = true;
   }
 
-  console.log(isAdmin);
-
   return isAdmin ? (
     <Outlet />
   ) : (

@@ -179,7 +179,7 @@ const Selling = () => {
         <CustomBreadcrumb items={BREADCRUMB_ITEMS} />
       </div>
       <div className="grid grid-cols-9 gap-4">
-        <Card className="col-span-6 w-full animate-fadeIn">
+        <Card className="col-span-6 w-full animate-fadeIn max-xl:col-span-9">
           <CardHeader className="pb-2">
             <div className="flex w-full items-center justify-between">
               <div>
@@ -193,7 +193,7 @@ const Selling = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="h-[600px]">
+          <CardContent className="h-[600px] max-md:h-[900px] max-sm:h-[1200px]">
             {productsIsLoading && (
               <div className="grid grid-cols-4 gap-4">
                 <Skeleton className="h-60" />
@@ -208,7 +208,7 @@ const Selling = () => {
             )}
             {!productsIsLoading && productsIsError && <EmptyData />}
             {!productsIsLoading && productsData && (
-              <ul className="grid h-full grid-cols-4 gap-4">
+              <ul className="grid h-full grid-cols-4 gap-4 max-md:grid-cols-3 max-sm:grid-cols-2">
                 {productsData.data.map((item) => {
                   return (
                     <li key={item.id}>
@@ -232,7 +232,7 @@ const Selling = () => {
             </CardFooter>
           )}
         </Card>
-        <Card className="col-span-3 w-full animate-fadeIn">
+        <Card className="col-span-3 w-full animate-fadeIn max-xl:col-span-6 max-md:col-span-9">
           <CardHeader className="pb-2">
             <div className="flex w-full items-center justify-between">
               <div className="w-full text-right">
