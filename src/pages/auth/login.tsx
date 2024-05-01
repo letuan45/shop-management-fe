@@ -57,8 +57,8 @@ const CarouselItems = [
       <div className="text-sm">
         <h5>Account demo dành cho bạn với role nhân viên</h5>
         <ul className="my-2 ml-4 list-disc">
-          <li>username: tuan</li>
-          <li>password: addmin</li>
+          <li>username: tuan2</li>
+          <li>password: employee</li>
         </ul>
         <p className="italic text-gray-300">
           Chúc bạn có trải nghiệm tuyệt vời!
@@ -100,8 +100,8 @@ const Login = () => {
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "tuan1",
-      password: "123456",
+      username: "tuan",
+      password: "admin",
     },
   });
 
