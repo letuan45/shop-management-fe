@@ -162,7 +162,6 @@ const Login = () => {
                 <h2 className="text-2xl font-semibold text-violet-600">
                   Shop Management
                 </h2>
-                <p className="text-sm font-normal">Phần mềm quản lý bán hàng</p>
               </div>
               <h3 className="text-xl font-semibold">Đăng nhập</h3>
               <p className="mt-2 text-sm font-normal">
@@ -230,6 +229,18 @@ const Login = () => {
               </Button>
             </form>
           </Form>
+          <div className="mb-2 rounded-md bg-violet-600 p-4 text-sm font-normal text-white">
+            <h3 className="font-semibold">Lưu ý:</h3>
+            <span className="mr-1">Truy cập:</span>
+            <Link to="https://13.212.129.122:8080/api" className="underline">
+              Back-end Swagger
+            </Link>
+            <span className="ml-1">
+              Để có thể cho phép project có thể tương tác với Back-end. Link
+              hoàn toàn an toàn, project đang trong quá trình triển khai SSL,
+              xin lỗi bạn vì sự bất tiện này.
+            </span>
+          </div>
           <div className="flex justify-between">
             <p className="text-sm text-gray-400">@2024 developed by LeTuan</p>
             <p className="text-sm text-gray-400">version: v1.0</p>
